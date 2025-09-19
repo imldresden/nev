@@ -10,7 +10,7 @@ type NodeBoxProps = {
 
 export function RuleNodeBox({ node, onMouseEnter }: Readonly<NodeBoxProps>) {
   const ruleName = node.getName();
-  const needsTooltip = StringFormatter.needsTruncation(ruleName);
+  const needsTooltip = StringFormatter.needsRuleTruncation(ruleName);
 
   const content = (
     <div

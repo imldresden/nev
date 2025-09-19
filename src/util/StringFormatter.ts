@@ -21,6 +21,18 @@ export class StringFormatter {
     return str.length > StringFormatter.maxLength;
   }
 
+  public needsRuleTruncation(str: string): boolean {
+    let truncated = false;
+    str.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/g, (match, name) => {
+      if (name.length > StringFormatter.maxLength) {
+        console.log(name)
+        truncated = true;
+      }
+      return match;
+    });
+    return truncated;
+  }
+
   public resetMaxLengthSlider(data: TreeNodeData) {
       StringFormatter.maxLengthSlider = -1;
       StringFormatter.getInstance().setMaxLengthSlider(data);
