@@ -1,4 +1,4 @@
-# use ARG BRANCH="main" and --branch ${BRANCH} when cloning if dev versions are not on main
+# use ARG BRANCH="the_branch" and --branch ${BRANCH} when cloning if dev versions are not on main
 
 FROM nixos/nix:latest AS rust
 WORKDIR /nemo
@@ -36,4 +36,4 @@ RUN cd nemo-web && NODE_OPTIONS=--max_old_space_size=4096 npm run build
 FROM nginx
 
 COPY --from=nemo-web /web/nemo-web/dist /usr/share/nginx/html/nemo
-COPY ./dist /usr/share/nginx/html/nemo/nev
+COPY ./dist /usr/share/nginx/html/nemo/ev
