@@ -38,7 +38,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ## Acknowledgements
 
-*nev* is developed by the [Interactive Media Lab Dresden](https://imld.de/) in collaboration with the [Knowledge-Based Systems](https://kbs.inf.tu-dresden.de/) group, both at [TU Dresden](https://tu-dresden.de). Github provides the [list of code contributors](https://github.com/knowsys/nemo/graphs/contributors). Its user interface design is inspired by [*pev2*](https://github.com/dalibo/pev2). 
+*nev* is developed by the [Interactive Media Lab Dresden](https://imld.de/) in collaboration with the [Knowledge-Based Systems](https://kbs.inf.tu-dresden.de/) group, both at [TU Dresden](https://tu-dresden.de). Github provides the list of code contributors to [nev](https://github.com/imldresden/nev/graphs/contributors) and [nemo](https://github.com/knowsys/nemo/graphs/contributors). Its user interface design is inspired by [*pev2*](https://github.com/dalibo/pev2). 
 
 #
 *Made with ❤️ in [Dresden](https://www.dresden.de).*
