@@ -18,7 +18,7 @@ function flattenTree(
 ) {
   result.push({ node, level, isLast, branches: [...branches] });
 
-  if ((node as any).isCollapsed) {
+  if (node.isCollapsed) {
     return result;
   }
   const children = node.getChildren()
@@ -89,7 +89,7 @@ function IndentedTreeRow({
 
 
   let background: string;
-  if ((row.node as any).gotSearched) {
+  if (row.node.gotSearched) {
     background = '#fff7b2';
   } else if (hoveredNode === row.node) {
     background = '#eaf6fb'; //background = row.node instanceof TableNodeData ? '#d2f5e3' : '#c6e2fa';

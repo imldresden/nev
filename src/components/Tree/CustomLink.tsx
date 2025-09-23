@@ -1,13 +1,14 @@
 import { useState } from "react";
 import '../../assets/Link.css'
 import { TableNodeData, type TreeNodeData } from "../../data/TreeNodeData";
+import type { PositionedTableNodeData } from "../../data/TreeNodeData";
 import { EXTENDED_HEIGHT, greyedButtonStyle, NORMAL_HEIGHT } from "../../types/constants";
 import { Tooltip } from "@mui/material";
 import { FaScissors } from "react-icons/fa6";
 
 type LinkProps = {
-  source: any;
-  target: any;
+  source: PositionedTableNodeData;
+  target: PositionedTableNodeData;
   mode: "explore" | "query";
   markerId?: string;
   onEdgeRemoveButtonClick: (source: TreeNodeData, target: TreeNodeData) => void;

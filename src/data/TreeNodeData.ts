@@ -1,5 +1,15 @@
 import { measureTextWidth } from "../util/measureTextWidth";
-import type { InnerTableQueryChildInformation, Rule, TableEntries, TableEntriesForTreeNodesQuery, TableEntryResponse, TableResponseBase, TreeForTableResponse, TreeForTableResponseChildInformation } from "../types/types";
+import type { 
+	InnerTableQuery,
+	InnerTableQueryChildInformation,
+	Rule,
+	TableEntries,
+	TableEntriesForTreeNodesQuery,
+	TableEntryResponse,
+	TableResponseBase,
+	TreeForTableResponse,
+	TreeForTableResponseChildInformation
+} from "../types/types";
 import { EXTENDED_WIDTH, NORMAL_HEIGHT } from "../types/constants";
 import StringFormatter from "../util/StringFormatter";
 export abstract class TreeNodeData {
@@ -9,6 +19,7 @@ export abstract class TreeNodeData {
 	public isCollapsed = false;
 	public isExpanded = false;
 	public isGreyed = false; //needed for grey effect in TreeNodeBox
+	public gotSearched? = false; 
 
 	public id: number[] = [];
 
@@ -74,9 +85,9 @@ export abstract class TreeNodeData {
 		return this.children;
 	}
 
-	public abstract toTableEntriesForTreeNodesQueryJSON(mode: boolean): any
+	public abstract toTableEntriesForTreeNodesQueryJSON(mode: boolean): unknown
 
-	public abstract toUndoRedoState(): any
+	public abstract toUndoRedoState(): unknown
 
 	public abstract clearTableEntriesInSubTree(): void
 
@@ -89,7 +100,7 @@ export class TableNodeData extends TreeNodeData {
 	private rulesAbove: Rule[] = [];
 	private rulesBelow: Rule[] = [];
 	public moreEntriesExist: boolean;
-	public gotSearched = false;
+	public gotSearched?:boolean = false;
 
 	public parameterPredicate: string[] = [];
 
@@ -128,12 +139,12 @@ export class TableNodeData extends TreeNodeData {
 
 	//create Type 2 Query
 	public toTableEntriesForTreeNodesQueryJSON(createEmptyQuery: boolean, bool: boolean = false, queries: string[] = []): TableEntriesForTreeNodesQuery {
-		const children = (this as any).children as TreeNodeData[] | undefined;
-		const base: any = {
-			tableEntries: {}
-		};
+		const children = this.getChildren() as TreeNodeData[] | undefined;
+		const base: TableEntriesForTreeNodesQuery = { predicate: "" };
+		base.tableEntries = { queries: [] };
+
 		if (children && children.length > 0) {
-			base.childInformation = children[0].toTableEntriesForTreeNodesQueryJSON(createEmptyQuery);
+			base.childInformation = children[0].toTableEntriesForTreeNodesQueryJSON(createEmptyQuery) as InnerTableQueryChildInformation;
 		}
 		if (bool) {
 			base.predicate = this.name;
@@ -144,10 +155,10 @@ export class TableNodeData extends TreeNodeData {
 		return base;
 	}
 
-	//to safe the current state of the table node
+	//to save the current state of the table node
 	public toUndoRedoState(): TreeForTableResponse {
 		const children = this.getChildren() as TreeNodeData[] | undefined;
-		const base: any = {
+		const base: TreeForTableResponse = {
 			predicate: this.name,
 			tableEntries: {
 				entries: this.entries.map((entry) => ({
@@ -163,7 +174,7 @@ export class TableNodeData extends TreeNodeData {
 			gotSearched: this.gotSearched,
 		};
 		if (children && children.length > 0) {
-			base.childInformation = children[0].toUndoRedoState();
+			base.childInformation = children[0].toUndoRedoState() as TreeForTableResponseChildInformation;
 		}
 		return base;
 	}
@@ -283,9 +294,9 @@ export class RuleNodeData extends TreeNodeData {
 		return {
 			rule: this.ruleId.id,
 			headIndex: this.ruleId.relevantHeadPredicateIndex,
-			children: (this as any).children
-				? (this as any).children.map((child: TreeNodeData) =>
-					child.toTableEntriesForTreeNodesQueryJSON(createEmptyQuery)
+			children: this.getChildren()
+				? this.getChildren().map((child: TreeNodeData) =>
+					child.toTableEntriesForTreeNodesQueryJSON(createEmptyQuery) as InnerTableQuery
 				)
 				: []
 		};
@@ -296,9 +307,9 @@ export class RuleNodeData extends TreeNodeData {
 			rule: this.ruleId,
 			isCollapsed: this.isCollapsed,
 			isGreyed: this.isGreyed,
-			children: (this as any).children
-				? (this as any).children.map((child: TreeNodeData) =>
-					child.toUndoRedoState()
+			children: this.getChildren()
+				? this.getChildren().map((child: TreeNodeData) =>
+					child.toUndoRedoState() as TreeForTableResponse
 				)
 				: []
 		};
@@ -310,3 +321,5 @@ export class RuleNodeData extends TreeNodeData {
 		}
 	}
 }
+
+export type PositionedTableNodeData = { x: number, y: number, data: TreeNodeData };

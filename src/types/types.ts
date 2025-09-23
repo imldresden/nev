@@ -79,6 +79,7 @@ export type TableResponseBase = {
   isCollapsed?: boolean;
   isGreyed?: boolean,
   searchedEntry?: string;
+  gotSearched?: boolean;
 };
 
 
@@ -132,3 +133,16 @@ export type TableEntriesForTreeNodesQuery = InnerTableQuery & {
 export type TableEntriesForTreeNodesResponse = (TableResponseBase & {
   addressInTree: number[];
 })[];
+
+export type TableColumn = {
+    field: string;
+    headerName: string;
+    width: number;
+    sortable?: boolean;
+    filterable?: boolean;
+    renderCell?: (params: ColumnParams) => React.JSX.Element;
+};
+
+export type ColumnParams = {
+    row: { id: string; [key: string]: string };
+};

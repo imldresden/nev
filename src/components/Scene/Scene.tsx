@@ -406,7 +406,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
   // Handle removing restriction from the tree
   const handleRestriction = (pqueries: string[]) => {
-    console.log(pqueries)
     if (pqueries.length === 0) {
       queries.length = 0;
     }

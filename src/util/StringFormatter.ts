@@ -25,7 +25,6 @@ export class StringFormatter {
     let truncated = false;
     str.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/g, (match, name) => {
       if (name.length > StringFormatter.maxLength) {
-        console.log(name)
         truncated = true;
       }
       return match;

@@ -1,9 +1,10 @@
 import { useMemo, useRef, useEffect, useState } from 'react'
 import * as d3 from 'd3'
 import { TableNodeData, type TreeNodeData } from '../../data/TreeNodeData'
+import type { PositionedTableNodeData } from "../../data/TreeNodeData";
 import CustomLink from './CustomLink'
 import TreeNodeRenderer from './TreeNodeRenderer'
-import { flextree } from 'd3-flextree'
+import { flextree, type FlextreeNode } from 'd3-flextree'
 import { TOP_PADDING } from '../../types/constants'
 import type { Rule, TableEntryResponse } from '../../types/types'
 import { StringFormatter } from '../../util/StringFormatter'
@@ -68,6 +69,9 @@ export default function Tree({
   setPanToNodeId,
   onPopOutClicked
 }: Readonly<TreeProps>) {
+  type FlextreeLink = {
+    source: PositionedTableNodeData, target: PositionedTableNodeData
+  };
 
   const { nodes, links, maxX, maxY } = useMemo(() => {
     function childrenFn(d: TableNodeData): TableNodeData[] | null {
@@ -75,32 +79,34 @@ export default function Tree({
       return ((d.getChildren?.() ?? []) as TableNodeData[]).filter(() => true);
     }
 
-    const layout = flextree().nodeSize((node: any) => [
-      (node.data.width ?? 60) + 60,
-      (node.data.height ?? 120) + 100
-    ])
+    const layout = flextree({}).nodeSize((node: d3.HierarchyNode<unknown>) => [
+      ((node.data as TableNodeData).width ?? 60) + 60,
+      ((node.data as TableNodeData).height ?? 120) + 100
+    ]);
+
     StringFormatter.getInstance().resetMaxLengthSlider(data);
-    const root = layout.hierarchy(data, childrenFn);
+    const root = layout.hierarchy(data, childrenFn as (d: unknown) => Iterable<TableNodeData> | null);
     layout(root);
-    const nodes = root.descendants();
-    const links = root.links();
-    const maxX = Math.max(...nodes.map((n: { x: any }) => n.x ?? 0));
-    const maxY = Math.max(...nodes.map((n: { y: any }) => n.y ?? 0));
+    const nodes = root.descendants() as FlextreeNode<TableNodeData>[];
+    const links = root.links() as FlextreeLink[];
+    const maxX = Math.max(...nodes.map((n: { x: number }) => n.x ?? 0));
+    const maxY = Math.max(...nodes.map((n: { y: number }) => n.y ?? 0));
     return { nodes, links, maxX, maxY };
-  }, [data, width, height, treeVersion]);
+  }, [data, width, height, treeVersion, mode]);
 
   const padding = 100
-  if (!width || !height) return null
+  if (!width) width = 0;
+  if (!height) height = 0;
   const svgWidth = Math.max(width, (maxY || 0) + padding)
   const svgHeight = Math.max(height, (maxX || 0) + padding)
 
   // Zoom/Pan
   const svgRef = useRef<SVGSVGElement>(null)
 
-  // Initialisiere Transform-Status
+  // init Transform-Status
   const centerX = width / 2;
-  const initialOffsetX = centerX 
-  const initialOffsetY = TOP_PADDING 
+  const initialOffsetX = centerX;
+  const initialOffsetY = TOP_PADDING; 
 
   const [transform, setTransform] = useState(
     d3.zoomIdentity.translate(initialOffsetX, initialOffsetY)
@@ -126,7 +132,7 @@ useEffect(() => {
 
   if (panToNodeId) {
   const { node, center } = panToNodeId;
-  const targetNode = nodes.find((n: any) => n.data === node); // Direktes Objekt-Matching!
+  const targetNode = nodes.find((n: FlextreeNode<TableNodeData>) => n.data === node); // Direktes Objekt-Matching!
   if (!targetNode) return;
 
   const x = targetNode.x;
@@ -147,7 +153,8 @@ useEffect(() => {
   d3.select(svgRef.current)
     .transition()
     .duration(500)
-    .call(d3.zoom().transform as any, newTransform);
+    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+    .call(d3.zoom().transform as any, newTransform); 
 
   setTransform(newTransform);
 
@@ -171,7 +178,8 @@ useEffect(() => {
   setTransform(initialTransform);
 
   d3.select(svgRef.current)
-    .call(d3.zoom().transform as any, initialTransform);
+    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
+    .call(d3.zoom().transform as any, initialTransform); 
 
   setLastCenteredRootId(rootNode.data.id);
 
@@ -200,12 +208,20 @@ useEffect(() => {
         </defs>
         <g transform={transform.toString()}>
           {links
-            .filter((link: { target: { data: { isPlaceholder: any } } }) => !link.target.data.isPlaceholder)
-            .map((link: { source: unknown; target: unknown }, i: number) => (
-              <CustomLink key={i} mode={mode} source={link.source} handleRemoveEdgePreview={handleRemoveEdgePreview} onMouseLeftButton={onMouseLeftButton} target={link.target} onEdgeRemoveButtonClick={onEdgeRemoveButtonClick} markerId="arrow" />
+            .map((link: FlextreeLink, i: number) => (
+              <CustomLink 
+                key={i} 
+                mode={mode} 
+                source={link.source} 
+                handleRemoveEdgePreview={handleRemoveEdgePreview} 
+                onMouseLeftButton={onMouseLeftButton} 
+                target={link.target} 
+                onEdgeRemoveButtonClick={onEdgeRemoveButtonClick} 
+                markerId="arrow" 
+              />
             ))}
 
-          {nodes.map((node: any, i: number) => (
+          {nodes.map((node: PositionedTableNodeData, i: number) => (
             <TreeNodeRenderer
               key={i}
               node={node}

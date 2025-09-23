@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FaCompress } from 'react-icons/fa';
 import { FaMagnifyingGlass } from 'react-icons/fa6';
 import StringFormatter from '../../util/StringFormatter';
-import type { TableEntryResponse } from '../../types/types';
+import type { TableEntryResponse, TableColumn, ColumnParams } from '../../types/types';
 import PaginationBar from './Pagination';
 
 type TableProps = {
@@ -33,20 +33,19 @@ function TableDialog({
     version,
     onTogglePanel
 }: Readonly<TableProps>) {
-    if (!node) return null;
-
+    const pagination = node ? node.getPagination() : { start : 0, count: 0 };
     const [loadMoreDialogOpen, setLoadMoreDialogOpen] = useState(false);
-    const [start, setStart] = useState(node.getPagination().start);
-    const [count, setCount] = useState(node.getPagination().count);
+    const [start, setStart] = useState(pagination.start);
+    const [count, setCount] = useState(pagination.count);
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(50);
 
-    const entries = useMemo(() => node.getTableEntries(), [node, version]);
+    const entries = useMemo(() => node ? node.getTableEntries() : [], [node, version]);
     const pageCount = Math.ceil(entries.length / pageSize);
 
     const pagedRows = entries.slice((page - 1) * pageSize, page * pageSize).map((row) => {
-        const rowObj: { id: number;[key: string]: any } = { id: row.entryId };
+        const rowObj: { id: string;[key: string]: string } = { id: `${row.entryId}` };
         row.termTuple.forEach((val, colIdx) => {
             rowObj[`col${colIdx}`] = val;
         });
@@ -55,16 +54,17 @@ function TableDialog({
 
     useEffect(() => {
         if (loadMoreDialogOpen) {
-            setStart(node.getPagination().start);
-            setCount(node.getPagination().count);
+            setStart(pagination.start);
+            setCount(pagination.count);
         }
-    }, [loadMoreDialogOpen, node]);
+    }, [ loadMoreDialogOpen, node, pagination.start, pagination.count ]);
 
     useEffect(() => {
         setPage(1);
     }, [entries.length, pageSize]);
 
-    let columns: any[] = [];
+    if (!node) return null;
+    let columns: TableColumn[] = [];
     if (entries[0]) {
         if (mode === "query") {
             columns = [
@@ -79,12 +79,12 @@ function TableDialog({
                     width: 60,
                     sortable: false,
                     filterable: false,
-                    renderCell: (params: any) => (
+                    renderCell: (params: ColumnParams) => (
                         <Tooltip title="Query for this fact!" placement="right" enterDelay={500}>
                             <IconButton
                                 onClick={() => {
                                     const row: TableEntryResponse = {
-                                        entryId: params.row.id,
+                                        entryId: +params.row.id,
                                         termTuple: Object.values(params.row).filter((_d, i) => i > 0).map(d => `${d}`)
                                     }
                                     onRowClicked(row, node.getName());

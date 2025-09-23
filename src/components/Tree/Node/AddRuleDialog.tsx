@@ -81,7 +81,7 @@ export default function AddRuleDialog({
       return;
     }
 
-    const [_, body] = rule.stringRepresentation.split(':-').map(s => s.trim());
+    const body = rule.stringRepresentation.split(':-').map(s => s.trim())[1];
     const nodeName = node.getName();
     const possibleChildrenNames = getPredicateParts(body || "").map(p => p.split('(')[0].trim());
     

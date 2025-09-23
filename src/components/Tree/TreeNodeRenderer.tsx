@@ -1,10 +1,11 @@
 import { RuleNodeData, TableNodeData, TreeNodeData } from "../../data/TreeNodeData";
+import type { PositionedTableNodeData } from "../../data/TreeNodeData";
 import type { Rule, TableEntryResponse } from "../../types/types";
 import RuleNode from "./Node/RuleNode";
 import TableNode from "./Node/TableNode";
 
 type TreeNodeRendererProps = {
-  node: any;
+  node: PositionedTableNodeData;
   mode: "explore" | "query";
   focusClicked: TreeNodeData | null;
   setFocusClicked: (node: TreeNodeData | null) => void;

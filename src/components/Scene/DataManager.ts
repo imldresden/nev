@@ -49,7 +49,7 @@ export class DataManager {
 
     public handleType1Response(json: TreeForTableResponse, ruleParameters: string[] = [], ownId: number[] = []): TableNodeData {
         let parameters = ruleParameters;
-        if (ruleParameters.length === 0) parameters = json.childInformation?.rule.relevantHeadPredicate.parameters!
+        if (ruleParameters.length === 0 && json.childInformation) parameters = json.childInformation.rule.relevantHeadPredicate.parameters!
         const tableNode = new TableNodeData(json, parameters, ownId);
         if (tableNode.isValueInsideTable(this.searchedEntry)) tableNode.gotSearched = true; //if the searched entry is inside the table, set the isSearchedEntry flag to true
         if (json.childInformation?.children) { //check for childs
@@ -75,7 +75,7 @@ export class DataManager {
 
     public loadUndoEntry(json: UndoRedoState, ruleParameters: string[] = [], ownId: number[] = []): TableNodeData {
         let parameters = ruleParameters;
-        if (ruleParameters.length === 0) parameters = json.childInformation?.rule.relevantHeadPredicate.parameters!
+        if (ruleParameters.length === 0 && json.childInformation) parameters = json.childInformation.rule.relevantHeadPredicate.parameters!
         const tableNode = new TableNodeData(json, parameters, ownId);
         if (json.isCollapsed !== undefined) tableNode.isCollapsed = json.isCollapsed
         if (json.isGreyed !== undefined) tableNode.isGreyed = json.isGreyed

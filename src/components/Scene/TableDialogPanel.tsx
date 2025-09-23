@@ -14,7 +14,7 @@ import { IoMdClose } from 'react-icons/io';
 import { FaArrowLeft, FaArrowRight, FaMagnifyingGlass } from 'react-icons/fa6';
 import StringFormatter from '../../util/StringFormatter';
 import { HIGHLIGHTING_COLORS } from '../../types/constants';
-import type { TableEntryResponse } from '../../types/types';
+import type { TableEntryResponse, TableColumn, ColumnParams } from '../../types/types';
 import PaginationBar from './Pagination';
 
 type TableDialogPanelProps = {
@@ -42,10 +42,9 @@ export default function TableDialogPanel({
     version,
     onMaximizeTable
 }: Readonly<TableDialogPanelProps>) {
-    if (!nodes || nodes.length === 0) return null;
-
     const [panelHeight, setPanelHeight] = useState(450);
-
+    
+    if (!nodes || nodes.length === 0) return null;
     return (
         <Drawer
             anchor="bottom"
@@ -169,7 +168,7 @@ function SingleTablePanel({
     const pageCount = Math.ceil(entries.length / pageSize);
 
     const pagedRows = entries.slice((page - 1) * pageSize, page * pageSize).map((row) => {
-        const rowObj: { id: number;[key: string]: any } = { id: row.entryId };
+        const rowObj: { id: string; [key: string]: string } = { id: `${row.entryId}` };
         row.termTuple.forEach((val, colIdx) => {
             rowObj[`col${colIdx}`] = val;
         });
@@ -183,14 +182,14 @@ function SingleTablePanel({
         }
     }, [loadMoreDialogOpen, node]);
 
-    let columns: any[] = [];
+    let columns: TableColumn[] = [];
     if (entries[0]) {
         if (mode === "query") {
             columns = [
                 ...entries[0].termTuple.map((_, idx) => ({
                     field: `col${idx}`,
                     headerName: node.parameterPredicate[idx] === undefined ? `var${idx}` : `${node.parameterPredicate[idx]}`,
-                    width: 150
+                    width: 150,
                 })),
                 {
                     field: "action",
@@ -198,12 +197,12 @@ function SingleTablePanel({
                     width: 60,
                     sortable: false,
                     filterable: false,
-                    renderCell: (params: any) => (
+                    renderCell: (params: ColumnParams) => (
                         <Tooltip title="Query for this fact!" placement="right" enterDelay={500}>
                             <IconButton
                                 onClick={() => {
                                     const row: TableEntryResponse = {
-                                        entryId: params.row.id,
+                                        entryId: +params.row.id,
                                         termTuple: Object.values(params.row).filter((_d, i) => i > 0).map(d => `${d}`)
                                     }
                                     onRowClicked(row, node.getName());
@@ -221,7 +220,7 @@ function SingleTablePanel({
             columns = entries[0].termTuple.map((_, idx) => ({
                 field: `col${idx}`,
                 headerName: node.parameterPredicate[idx] === undefined ? `var${idx}` : `${node.parameterPredicate[idx]}`,
-                width: 150
+                width: 150,
             }));
         }
     }
