@@ -4,7 +4,7 @@ import '../../../assets/NodeDetails.css'
 import type { TableNodeData, TreeNodeData } from '../../../data/TreeNodeData'
 import { TiPin } from 'react-icons/ti'
 import Tooltip from '@mui/material/Tooltip';
-import { Button, ButtonGroup, IconButton } from '@mui/material'
+import { IconButton } from '@mui/material'
 import StringFormatter from '../../../util/StringFormatter'
 import { FaChevronLeft, FaChevronRight, FaMagnifyingGlass } from 'react-icons/fa6'
 import { HIGHLIGHTING_COLORS } from '../../../types/constants'
@@ -71,7 +71,7 @@ function TableNodeHeader({
 }
 
 function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonly<TableNodeDetailsProps>) {
-  const [activeTab, setActiveTab] = useState<"table" | "details">("table");
+  // const [activeTab, setActiveTab] = useState<"table" | "details">("table");
   const scrollDivRef = useRef<HTMLDivElement>(null);
 
   const [page, setPage] = useState(1);
@@ -122,7 +122,7 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
     };
     div.addEventListener("wheel", handler, { passive: false });
     return () => div.removeEventListener("wheel", handler);
-  }, [activeTab]);
+  }, [/*activeTab*/]);
 
   useEffect(() => {
     setPage(1);
@@ -130,6 +130,7 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
 
   return (
     <div className="table-node-details">
+      {/*
       <ButtonGroup
         variant="contained"
         size="small"
@@ -151,8 +152,9 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
           Details
         </Button>
       </ButtonGroup>
+      */}
       <div className="table-node-details-content">
-        {activeTab === "table" && (
+      {/* {activeTab === "table" && ( */}
           <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
             <div
               ref={scrollDivRef}
@@ -255,12 +257,14 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
               </div>
             </div>
           </div>
+        {/* 
         )}
         {activeTab === "details" && (
           <div>
             {"test"}
           </div>
         )}
+        */}
       </div>
     </div>
   );
