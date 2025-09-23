@@ -13,9 +13,9 @@ To use it, compute the results, then click the magnifying glass on any computed 
 
 We provide a [Dockerfile](Dockerfile) that fetches [*nemo*](https://github.com/knowsys/nemo), [*nemo-web*](https://github.com/knowsys/nemo-web), and [nemo's language server (.vsix)](https://github.com/knowsys/nemo-vscode-extension) from the respective repositories, then builds them along *nev* as static files, to ultimately serve them on a simple *nginx* web server. <br>
 
-To use it, install [Docker](https://www.docker.com/) and [Node.js](https://nodejs.org/en). With Docker's daemon running, you can run: `npm i` and `npm run docker`. You can then access nemo and nev at [localhost:8000/nemo/](http://localhost:8000/nemo/) <br>
+To use it, install [Docker](https://www.docker.com/) and [Node.js](https://nodejs.org/en). With Docker's daemon running, you can run: `npm ci` and `npm run docker`. You can then access nemo and nev at [localhost:8000/nemo/](http://localhost:8000/nemo/) <br>
 
-Alternatively, you can follow along nemo's local installation instructions, then move the static files to the root of this repository and use `npm i`and `npm run dev` to develop locally. 
+Alternatively, you can follow along nemo's local installation instructions, then move the static files to the root of this repository and use `npm ci`and `npm run dev` to develop locally. 
 
 ## Help
 
