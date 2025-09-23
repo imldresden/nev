@@ -30,7 +30,9 @@ export abstract class TreeNodeData {
 
 	public updateInitialWidth() {
 		if (this instanceof TableNodeData) {
-			this.initialWidth = measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.parameterPredicate));
+			this.initialWidth = this.isSingleEntryTable()
+        ? measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.getTableEntries()[0].termTuple))
+        : measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.parameterPredicate));
 		} else {
 			this.initialWidth = measureTextWidth(StringFormatter.formatRuleName(this.name, true));
 		}
@@ -258,6 +260,10 @@ export class TableNodeData extends TreeNodeData {
 	public getRulesBelow() {
 		return this.rulesBelow;
 	}
+
+  public isSingleEntryTable() {
+    return !this.moreEntriesExist && this.getTableEntries().length === 1;
+  }
 }
 
 export class RuleNodeData extends TreeNodeData {

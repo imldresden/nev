@@ -9,6 +9,7 @@ import StringFormatter from '../../../util/StringFormatter'
 import { FaChevronLeft, FaChevronRight, FaMagnifyingGlass } from 'react-icons/fa6'
 import { HIGHLIGHTING_COLORS } from '../../../types/constants'
 import type { TableEntryResponse } from '../../../types/types'
+import { measureTextWidth } from '../../../util/measureTextWidth'
 
 type NodeBoxProps = {
   node: TableNodeData
@@ -26,6 +27,20 @@ type TableNodeDetailsProps = {
   onRowClicked: (row: TableEntryResponse, predicate: string) => void;
   onPopOutClicked: (node: TableNodeData) => void;
 };
+
+function SingleEntryTable({ node }: { readonly node: TableNodeData }) {
+  const name = node.getName();
+  return (
+    <div
+      className="table-node-box__header"
+      style={{ cursor: 'pointer' }}
+    >
+      <span>
+        {StringFormatter.formatPredicate(name, true, node.getTableEntries()[0].termTuple)}
+      </span>
+    </div>
+  );
+}
 
 function TableNodeHeader({
   node,
@@ -292,19 +307,28 @@ export function TableNodeBox({ node, mode, onMouseEnter, clicked, onNodeClicked,
         zIndex: outlineColor ? 10 : undefined,
       }}
     >
-      <TableNodeHeader
-        node={node}
-        onClick={() => {
-          node.isExpanded = !node.isExpanded;
-          onNodeClicked(node);
-        }}
-        onHeaderHover={() => setHeaderHovered(true)}
-        onHeaderLeave={() => setHeaderHovered(false)}
-      />
+      {node.isSingleEntryTable() 
+        ? (
+          <SingleEntryTable node={node} />
+        )
+        : (
+          <>
+            <TableNodeHeader
+              node={node}
+              onClick={() => {
+                node.isExpanded = !node.isExpanded;
+                onNodeClicked(node);
+              }}
+              onHeaderHover={() => setHeaderHovered(true)}
+              onHeaderLeave={() => setHeaderHovered(false)}
+            />
 
-      {node.isExpanded && (
-        <TableNodeDetails node={node} mode={mode} onRowClicked={onRowClicked} onPopOutClicked={onPopOutClicked} />
-      )}
+            {node.isExpanded && (
+              <TableNodeDetails node={node} mode={mode} onRowClicked={onRowClicked} onPopOutClicked={onPopOutClicked} />
+            )}
+          </>
+        )
+      }
     </div>
   )
 }
