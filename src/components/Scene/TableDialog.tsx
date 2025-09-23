@@ -85,7 +85,7 @@ function TableDialog({
                                 onClick={() => {
                                     const row: TableEntryResponse = {
                                         entryId: params.row.id,
-                                        termTuple: Object.values(params.row).filter((d, i) => i > 0).map(d => `${d}`)
+                                        termTuple: Object.values(params.row).filter((_d, i) => i > 0).map(d => `${d}`)
                                     }
                                     onRowClicked(row, node.getName());
                                     onClose();

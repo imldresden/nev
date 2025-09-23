@@ -381,7 +381,7 @@ export class DataManager {
 
     public setFlagFocusOnNode(rootNode: TableNodeData, node: TreeNodeData, flag: "isGreyed") {
         for (const child of node.getChildren()) {
-            this.setFlagNodesBelowThis(rootNode, child, flag); //blur all grandchildren of the rule node
+            this.setFlagNodesBelowThis(child, flag); //blur all grandchildren of the rule node
         }
 
         const parent = this.findeParentOfNode(rootNode, node);
@@ -393,14 +393,14 @@ export class DataManager {
         if (parent.getChildren().length > 1) {
             for (const sibling of parent.getChildren()) {
                 if (sibling !== node) {
-                    this.setFlagNodesBelowThis(rootNode, sibling, flag, true)
+                    this.setFlagNodesBelowThis(sibling, flag, true)
                 }
             }
         }
     }
 
     //blur deleted edge
-    public setFlagNodesBelowThis(rootNode: TableNodeData, node: TreeNodeData, flag: "isGreyed", bool: boolean = false) {
+    public setFlagNodesBelowThis(node: TreeNodeData, flag: "isGreyed", bool: boolean = false) {
         const parents: TreeNodeData[] = bool ? [node] : [...node.getChildren()];
         for (const parent of parents) {
             parent[flag] = true;

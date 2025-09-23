@@ -59,7 +59,7 @@ export class StringFormatter {
 
   public formatRuleName(name: string, shortenName: boolean): string {
     // Regex: PredicateName(args)
-    return name.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/g, (match, name, args) => {
+    return name.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/g, (_match, name, args) => {
       const truncatedName = shortenName ? this.truncate(name, StringFormatter.maxLength) : name;
       return `${truncatedName}(${args})`;
     });

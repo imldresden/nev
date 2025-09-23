@@ -9,7 +9,6 @@ import StringFormatter from '../../../util/StringFormatter'
 import { FaChevronLeft, FaChevronRight, FaMagnifyingGlass } from 'react-icons/fa6'
 import { HIGHLIGHTING_COLORS } from '../../../types/constants'
 import type { TableEntryResponse } from '../../../types/types'
-import { measureTextWidth } from '../../../util/measureTextWidth'
 
 type NodeBoxProps = {
   node: TableNodeData

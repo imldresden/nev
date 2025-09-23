@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import { DataGrid } from '@mui/x-data-grid';
 import type { TableNodeData } from '../../data/TreeNodeData';
-import { Button, DialogActions, Pagination, TextField, Tooltip, Select, MenuItem } from '@mui/material';
+import { Button, DialogActions, TextField, Tooltip } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { FaArrowLeft, FaArrowRight, FaMagnifyingGlass } from 'react-icons/fa6';
@@ -71,7 +71,7 @@ export default function TableDialogPanel({
                 minHeight={150}
                 maxHeight={window.innerHeight - 100}
                 enable={{ top: true }}
-                onResize={(e, direction, ref) => {
+                onResize={(_e, _direction, ref) => {
                     setPanelHeight(ref.offsetHeight);
                 }}
                 handleStyles={{
@@ -204,7 +204,7 @@ function SingleTablePanel({
                                 onClick={() => {
                                     const row: TableEntryResponse = {
                                         entryId: params.row.id,
-                                        termTuple: Object.values(params.row).filter((d, i) => i > 0).map(d => `${d}`)
+                                        termTuple: Object.values(params.row).filter((_d, i) => i > 0).map(d => `${d}`)
                                     }
                                     onRowClicked(row, node.getName());
                                     node.isHighlighted = 0;

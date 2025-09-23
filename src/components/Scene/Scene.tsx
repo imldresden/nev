@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Tree from "../Tree/Tree";
-import { IconButton, Snackbar, Tooltip, Button, TextField, Slider, Box, Input } from "@mui/material";
+import { IconButton, Snackbar, Tooltip, Button, Slider, Box, Input } from "@mui/material";
 import { DataManager } from "./DataManager";
 import { RuleNodeData, TableNodeData, TreeNodeData } from "../../data/TreeNodeData";
 import './../../assets/index.css'
@@ -430,7 +430,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
   // Handle preview for removing an edge
   const handleRemoveEdgePreview = (source: TreeNodeData) => {
-    dataManager.setFlagNodesBelowThis(rootNode, source, "isGreyed");
+    dataManager.setFlagNodesBelowThis(source, "isGreyed");
     setTreeVersion(v => v + 1);
   }
 

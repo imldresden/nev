@@ -2,7 +2,6 @@ import type { TableNodeData, TreeNodeData } from '../../../data/TreeNodeData'
 import { useState } from 'react'
 import '../../../assets/Node.css'
 import { TableNodeBox } from './TableNodeBox'
-import { FaLaptopCode } from 'react-icons/fa'
 import AddRuleDialog from './AddRuleDialog'
 import {Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
@@ -36,7 +35,6 @@ export default function TableNode({
     node,
     mode,
     focusClicked,
-    codingButtonClicked,
     setFocusClicked,
     onAddAboveButtonClick,
     onAddBelowButtonClick,

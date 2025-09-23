@@ -69,7 +69,7 @@ export default function SidePanel({
               cursor: "ew-resize",
             }
           }}
-          onResize={(e, direction, ref, d) => {
+          onResize={(_e, _direction, ref, _d) => {
             setDrawerWidth(ref.offsetWidth);
           }}
           style={{

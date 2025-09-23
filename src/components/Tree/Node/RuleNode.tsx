@@ -2,7 +2,6 @@ import type { RuleNodeData, TreeNodeData } from '../../../data/TreeNodeData'
 import { useState } from 'react'
 import '../../../assets/Node.css'
 import { RuleNodeBox } from './RuleNodeBox'
-import { FaLaptopCode } from 'react-icons/fa'
 import { Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
@@ -30,7 +29,6 @@ export default function RuleNode({
   setFocusClicked,
   onMouseLeftButton,
   giveFocusPreview,
-  codingButtonClicked,
   onCollapseButtonClick,
   onFocusButtonClick,
   onFocusNode,

@@ -8,7 +8,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import type { Rule } from '../../../types/types'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import type { TableNodeData } from '../../../data/TreeNodeData'
 
 type AddRuleDialogProps = {
