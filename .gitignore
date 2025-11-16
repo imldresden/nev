@@ -10,6 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+dist-nemo
+nemo
+nemo-vscode-extension
+nemo-web
+
 *.local
 
 # Editor directories and files
