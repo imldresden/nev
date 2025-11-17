@@ -7,7 +7,7 @@ import './../../assets/index.css'
 import SidePanel from "./SidePanel";
 import TableDialog from "./TableDialog";
 import type { Rule, TableEntriesForTreeNodesQuery, TableEntriesForTreeNodesResponse, TableEntryResponse, TreeForTableQuery, TreeForTableResponse } from "../../types/types";
-import { FaRedo, FaUndo } from "react-icons/fa";
+import { FaRedo, FaUndo, FaPenSquare, FaLock, FaLockOpen } from "react-icons/fa";
 import TableDialogPanel from "./TableDialogPanel";
 import SettingsMenu from "./SettingsMenu";
 import SearchDialog from "./SearchDialog";
@@ -468,26 +468,28 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
             Find in Tree
           </Button>
         </Tooltip>
-        <Tooltip title="Undo the last action taken!" placement="left" enterDelay={500}>
-          <Button
-            variant="outlined"
-            startIcon={<FaUndo />}
-            disabled={!dataManager.hasUndos()}
-            onClick={handleUndo}
-          >
-            Undo
-          </Button>
-        </Tooltip>
-        <Tooltip title="Redo the last undone action!" placement="left" enterDelay={500}>
-          <Button
-            variant="outlined"
-            startIcon={<FaRedo />}
-            disabled={!dataManager.hasRedos()}
-            onClick={handleRedo}
-          >
-            Redo
-          </Button>
-        </Tooltip>
+        <div style={{ display: "block" }}>
+          <Tooltip title="Undo the last action taken!" placement="left" enterDelay={500}>
+            <span  style={{ float: "left" }}><Button
+              variant="outlined"
+              startIcon={<FaUndo />}
+              disabled={!dataManager.hasUndos()}
+              onClick={handleUndo}
+            >
+              Undo
+            </Button></span>
+          </Tooltip>
+          <Tooltip title="Redo the last undone action!" placement="left" enterDelay={500}>
+            <span style={{ float: "right" }}><Button
+              variant="outlined"
+              startIcon={<FaRedo />}
+              disabled={!dataManager.hasRedos()}
+              onClick={handleRedo}
+            >
+              Redo
+            </Button></span>
+          </Tooltip>
+        </div>
         <div
           style={{
             marginTop: 8,
@@ -511,32 +513,35 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
           <div style={{ marginTop: 4 }}>
             <b>Current Query Restriction:</b>
             <div style={{ whiteSpace: "nowrap" }}>
-              {queries.length > 0 ? queries.map(q => <div>{q}</div>) : <div> [ ] </div>}
+              {queries.length > 0 ? queries.map((q, i) => <div key={i}>{q}</div>) : <div> [ ] </div>}
             </div>
           </div>
         </div>
-        <Tooltip title="Opens the query editor!" placement="left" enterDelay={500}>
-          <Button
-            variant="outlined"
-            size="small"
-            style={{ marginTop: 8 }}
-            onClick={() => {
-              setEditQueryOpen(true);
-            }}
-          >
-            Edit current query
-          </Button>
-        </Tooltip>
-        <Tooltip title="Query for all entries based on tree!" placement="left" enterDelay={500}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => { handleRestriction([]) }}
-            style={{ marginTop: 1 }}
-          >
-            Unrestrict Query
-          </Button>
-        </Tooltip>
+        <div style={{ display: "block" }}> 
+          <Tooltip title="Opens the query editor!" placement="left" enterDelay={500}>
+            <span style={{ float:"left" }}> <Button
+              variant="outlined"
+              size="small"
+              startIcon={<FaPenSquare />}
+              onClick={() => {
+                setEditQueryOpen(true);
+              }}
+            >
+              Edit 
+            </Button> </span>
+          </Tooltip>
+          <Tooltip title="Query for all entries based on tree!" placement="left" enterDelay={500}>
+            <span style={{ float:"right" }}> <Button
+              variant="outlined"
+              size="small"
+              startIcon={<FaLock />}
+              disabled={queries.length === 0}
+              onClick={() => { handleRestriction([]) }}
+            >
+              Unrestrict 
+            </Button> </span>
+          </Tooltip>
+        </div>
         <span style={{ fontSize: 14, fontWeight: 500, marginTop: 2, alignSelf: "flex-start" }}>
           Maximum Predicate Name Length
         </span>

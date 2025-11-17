@@ -11,11 +11,12 @@ To use it, compute the results, then click the magnifying glass on any computed 
 
 ## Installation
 
-We provide a [Dockerfile](Dockerfile) that fetches [*nemo*](https://github.com/knowsys/nemo), [*nemo-web*](https://github.com/knowsys/nemo-web), and [nemo's language server (.vsix)](https://github.com/knowsys/nemo-vscode-extension) from the respective repositories, then builds them along *nev* as static files, to ultimately serve them on a simple *nginx* web server. <br>
-
-To use it, install [Docker](https://www.docker.com/) and [Node.js](https://nodejs.org/en). With Docker's daemon running, you can run: `npm ci` and `npm run docker`. You can then access nemo and nev at [localhost:8000/nemo/](http://localhost:8000/nemo/) <br>
-
-Alternatively, you can follow along nemo's local installation instructions, then move the static files to the root of this repository and use `npm ci`and `npm run dev` to develop locally. 
+We provide two ways to install *nev*: 
+- The [Dockerfile](Dockerfile) fetches from *nemo*'s repositories, builds them along *nev* as static files, to ultimately serve them on a simple *nginx* web server. <br>
+To use it, install [Docker](https://www.docker.com/) and [Node.js](https://nodejs.org/en). With Docker's daemon running, you can run: `npm ci` and `npm run docker`. You can then access [nemo](http://localhost:8000/nemo/) and [nev](http://localhost:8000/nemo/ev) at localhost:8000. <br>
+- For development, you may want to install everything locally instead. The [build.sh](build.sh) script fetches and installs everything accordingly. <br>
+To use it, you'll need [rust](https://rust-lang.org/tools/install/), [wasm-pack](https://drager.github.io/wasm-pack/installer/), and [Node.js](https://nodejs.org/en) (mind the required system restarts). Run the script using `npm run build-all`, then use `npm run dev` to access [nemo](http://localhost:5173/nemo-web/dist/) and [nev](http://localhost:5173/) in localhost:5173. <br> 
+You can also use `npm run clean` prior (to remove *nemo*'s repositories), and `npm run build` to build only *nev*. 
 
 ## Help
 

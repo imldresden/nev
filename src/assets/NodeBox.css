@@ -2,7 +2,6 @@
 .rule-node-box {
   background: #fff;
   font-weight: bold;
-  border-radius: 8px;
   box-shadow: 0 2px 8px #0001;
   pointer-events: auto;
   cursor: pointer;
@@ -10,6 +9,9 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
+}
+.table-node-box {
+  border-radius: 8px;
 }
 .table-node-box--highlighted {
   outline: 3px solid #ffb300;
@@ -73,9 +75,14 @@
   box-shadow: 0 4px 16px #69b3a233;
 }
 
+.table-node-box--header:not(.table-node-box--expanded),
+.custom-node .table-node-box {
+  background: #dbfdec;
+}
+
 .table-node-box--header-hovered:not(.table-node-box--expanded),
-.custom-node.hovered .table-node-box {
-  background: #d2f5e3;
+.custom-node.hovered {
+  background: #b6ebcd;
 }
 
 /*Header Hover when expanded */

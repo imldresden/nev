@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite --host",
     "docker": "vite build && docker build . -t nev --progress=plain  && docker rm -f nev && docker run --name=nev -dp 8000:80 nev",
-    "build-all": "build-all.sh",
+    "build-all": "build.sh",
     "build": "tsc -b && vite build",
+    "clean": "clean.sh",
     "lint": "eslint .",
     "preview": "vite preview"
   },

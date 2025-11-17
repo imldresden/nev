@@ -1,4 +1,4 @@
-export const EXTENDED_HEIGHT = 217
+export const EXTENDED_HEIGHT = 200
 export const NORMAL_HEIGHT = 15
 
 export const EXTENDED_WIDTH = 374

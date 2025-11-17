@@ -87,7 +87,6 @@ function IndentedTreeRow({
     prefix += '│';
   }
 
-
   let background: string;
   if (row.node.gotSearched) {
     background = '#fff7b2';
@@ -107,20 +106,15 @@ function IndentedTreeRow({
       cursor: 'pointer',
       background,
       color,
-      whiteSpace: 'nowrap', // Zeile nicht umbrechen!
-      overflow: 'hidden',   // Überlauf verstecken
-      textOverflow: 'ellipsis', // ... am Ende anzeigen
-      maxWidth: '100%'      // passt sich an Container an
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      maxWidth: '100%',
     }}
     onClick={e => {
       if (e.ctrlKey) {onNodeClicked(row.node, true)}
       onNodeClicked(row.node, false);
     }}
-    title={ // Tooltip mit vollem Namen
-      (row.node instanceof TableNodeData)
-        ? StringFormatter.formatPredicate(row.node.getName(), false, row.node.parameterPredicate)
-        : StringFormatter.formatRuleName(row.node.getName(), false)
-    }
   >
     {prefix}
     {(caret ? caret : ' ') + ' '}
@@ -132,7 +126,11 @@ function IndentedTreeRow({
 );
 
   return (
-    <Tooltip title={"Jump to Node!"} placement="left" enterDelay={500}>
+    <Tooltip title={
+      (row.node instanceof TableNodeData)
+        ? StringFormatter.formatPredicate(row.node.getName(), false, row.node.parameterPredicate)
+        : StringFormatter.formatRuleName(row.node.getName(), false)
+    } placement="right" enterDelay={500}>
       {content}
     </Tooltip>
   );
