@@ -13,7 +13,7 @@ import type { TableEntryResponse } from '../../../types/types'
 type NodeBoxProps = {
   node: TableNodeData
   mode: 'explore' | 'query';
-  onMouseEnter?: () => void
+  isHovered?: boolean
   onNodeClicked: (node: TreeNodeData) => void;
   clicked?: boolean
   onRowClicked: (row: TableEntryResponse, predicate: string) => void;
@@ -44,13 +44,9 @@ function SingleEntryTable({ node }: { readonly node: TableNodeData }) {
 function TableNodeHeader({
   node,
   onClick,
-  onHeaderHover,
-  onHeaderLeave,
 }: {
   readonly node: TableNodeData;
   readonly onClick: () => void;
-  readonly onHeaderHover: () => void;
-  readonly onHeaderLeave: () => void;
 }) {
   const name = node.getName();
   const needsTooltip = StringFormatter.needsTruncation(name);
@@ -61,8 +57,6 @@ function TableNodeHeader({
         className="table-node-box__header"
         style={{ cursor: 'pointer' }}
         onClick={onClick}
-        onMouseEnter={onHeaderHover}
-        onMouseLeave={onHeaderLeave}
       >
         {needsTooltip ? (
           <Tooltip
@@ -284,17 +278,17 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
   );
 }
 
-export function TableNodeBox({ node, mode, onMouseEnter, clicked, onNodeClicked, onRowClicked, onPopOutClicked }: Readonly<NodeBoxProps>) {
-  const [headerHovered, setHeaderHovered] = useState(false)
-
+export function TableNodeBox({ node, mode, isHovered, clicked, onNodeClicked, onRowClicked, onPopOutClicked }: Readonly<NodeBoxProps>) {
   const outlineColor = HIGHLIGHTING_COLORS[node.isHighlighted] || undefined;
 
   return (
     <div
       className={
-        `table-node-box${clicked ? ' table-node-box--clicked' : ''}${node.isExpanded ? ' table-node-box--expanded' : ''}${headerHovered ? ' table-node-box--header-hovered' : ''}${node.isGreyed ? ' node-grey' : ''}`
+        `table-node-box${clicked ? ' table-node-box--clicked' : ''}
+        ${node.isExpanded ? ' table-node-box--expanded' : ''}
+        ${isHovered ? ' hovered' : ''}
+        ${node.isGreyed ? ' node-grey' : ''}`
       }
-      onMouseEnter={onMouseEnter}
       style={{
         width: node.width,
         height: node.height,
@@ -318,8 +312,6 @@ export function TableNodeBox({ node, mode, onMouseEnter, clicked, onNodeClicked,
                 node.isExpanded = !node.isExpanded;
                 onNodeClicked(node);
               }}
-              onHeaderHover={() => setHeaderHovered(true)}
-              onHeaderLeave={() => setHeaderHovered(false)}
             />
 
             {node.isExpanded && (

@@ -75,12 +75,12 @@
   box-shadow: 0 4px 16px #69b3a233;
 }
 
-.table-node-box--header:not(.table-node-box--expanded),
-.custom-node .table-node-box {
+.table-node-box,
+.custom-node {
   background: #dbfdec;
 }
 
-.table-node-box--header-hovered:not(.table-node-box--expanded),
+.table-node-box.hovered,
 .custom-node.hovered {
   background: #b6ebcd;
 }

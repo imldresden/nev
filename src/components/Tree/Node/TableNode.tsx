@@ -63,13 +63,14 @@ export default function TableNode({
 
     return (
         <div
-            className={`custom-node${isHovered ? ' hovered' : ''}`}
+            className={`custom-node${hovered ? ' hovered' : ''}`}
             onMouseLeave={() => {setHovered(false); setHoveredNode(null)}}
+            onMouseEnter={() => {setHovered(true); setHoveredNode(node)}}
         >
             <TableNodeBox
                 node={node}
                 mode={mode}
-                onMouseEnter={() => {setHovered(true); setHoveredNode(node)}}
+                isHovered={isHovered}
                 onNodeClicked={onNodeClicked}
                 onRowClicked={onRowClicked}
                 onPopOutClicked={onPopOutClicked}

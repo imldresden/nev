@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import Tree from "../Tree/Tree";
-import { IconButton, Snackbar, Tooltip, Button, Slider, Box, Input } from "@mui/material";
+import { Snackbar, Tooltip, Button, Slider, Box, Input } from "@mui/material";
 import { DataManager } from "./DataManager";
 import { RuleNodeData, TableNodeData, TreeNodeData } from "../../data/TreeNodeData";
 import './../../assets/index.css'
 import SidePanel from "./SidePanel";
 import TableDialog from "./TableDialog";
 import type { Rule, TableEntriesForTreeNodesQuery, TableEntriesForTreeNodesResponse, TableEntryResponse, TreeForTableQuery, TreeForTableResponse } from "../../types/types";
-import { FaRedo, FaUndo, FaPenSquare, FaLock, FaLockOpen } from "react-icons/fa";
+import { FaRedo, FaUndo, FaPenSquare, FaLock } from "react-icons/fa";
 import TableDialogPanel from "./TableDialogPanel";
-import SettingsMenu from "./SettingsMenu";
-import SearchDialog from "./SearchDialog";
-import { IoMenu } from "react-icons/io5";
 import { HIGHLIGHTING_COLORS } from "../../types/constants";
 import EditQueryDialog from "./EditQueryDialog";
 import { StringFormatter } from "../../util/StringFormatter";
+import TextField from '@mui/material/TextField';
+import { ToggleButton, ToggleButtonGroup }  from "@mui/material";
 
 type SceneProps = {
   sendMessage: (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => void;
@@ -52,8 +51,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
   // State to trigger TableDialogPanel re-render
   const [tableDialogVersion, setTableDialogVersion] = useState(0);
 
-  // State for search dialog visibility and value
-  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  // State for search value
   const [searchValue, setSearchValue] = useState("");
 
   // State for focused node in the tree
@@ -80,8 +78,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
     "possibleRulesBelow": [],
   }, [""], [])); // Initialize with a default node
 
-  // State for settings menu and mode
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  // State for mode
   const [mode, setMode] = useState<"explore" | "query">("query");
 
   // State for snackbar notifications
@@ -150,7 +147,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
         setSnackbarMsg("Switched to Query Mode");
         setSnackbarOpen(true);
       }
-      if (e.ctrlKey && e.key.toLowerCase() === "e") {
+      if (e.ctrlKey && e.key.toLowerCase() === "x") {
         setMode("explore");
         setSnackbarMsg("Switched to Explore Mode");
         setSnackbarOpen(true);
@@ -368,20 +365,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
     sendType2Message(rootNode);
   }
 
-  // Handle opening the search dialog
-  const handleSearchClick = () => {
-    setSearchDialogOpen(true);
-  };
-
-  // Handle confirming a search
-  const handleSearchConfirm = () => {
-    setSearchDialogOpen(false);
-    if (dataManager.searchForEntry(rootNode, searchValue)) {
-      //dataManager.pushNewElementToUndoList(json);
-      setTreeVersion(v => v + 1);
-    }
-  };
-
   // Handle undo action
   const handleUndo = () => {
     const undoResult = dataManager.undo(rootNode);
@@ -441,32 +424,34 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
   return (
     <div style={{ position: "relative" }}>
-      {/* Settings menu button */}
-      <div style={{ position: "absolute", top: 16, right: 16, zIndex: 2 }}>
-        <IconButton onClick={() => setSettingsOpen(true)}>
-          <IoMenu />
-        </IconButton>
-      </div>
-      {/* Settings menu */}
-      <SettingsMenu
-        open={settingsOpen}
-        mode={mode}
-        setFocusedClicked={() => setFocusClicked(null)}
-        setMode={setMode}
-        onClose={() => setSettingsOpen(false)}
-        resetExplore={() => handleResetEffect("isGreyed")}
-      />
-
       {/* Top right action buttons */}
-      <div style={{ position: "absolute", top: 72, right: 16, zIndex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ position: "absolute", top: 16, right: 16, zIndex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{textAlign:"center"}}>
+        <ToggleButtonGroup
+          size="small"
+          color="primary"
+          value={mode}
+          exclusive
+          onChange={(_, v) => setMode(v)}
+          aria-label="Platform"
+        >
+          <ToggleButton value="explore">Explore</ToggleButton>
+          <ToggleButton value="query">Query</ToggleButton>
+        </ToggleButtonGroup>
+        </div>
         <Tooltip title="Search for specific table entries!" placement="left" enterDelay={500}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSearchClick}
-          >
-            Find in Tree
-          </Button>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Search"
+            fullWidth
+            value={searchValue}
+            onChange={e => {
+              setSearchValue(e.target.value);
+              dataManager.searchForEntry(rootNode, e.target.value);
+            }}
+            placeholder="full words, e.g., alice, bob"
+          />
         </Tooltip>
         <div style={{ display: "block" }}>
           <Tooltip title="Undo the last action taken!" placement="left" enterDelay={500}>
@@ -490,6 +475,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
             </Button></span>
           </Tooltip>
         </div>
+
         <div
           style={{
             marginTop: 8,
@@ -517,6 +503,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
             </div>
           </div>
         </div>
+
         <div style={{ display: "block" }}> 
           <Tooltip title="Opens the query editor!" placement="left" enterDelay={500}>
             <span style={{ float:"left" }}> <Button
@@ -542,6 +529,7 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
             </Button> </span>
           </Tooltip>
         </div>
+
         <span style={{ fontSize: 14, fontWeight: 500, marginTop: 2, alignSelf: "flex-start" }}>
           Maximum Predicate Name Length
         </span>
@@ -576,15 +564,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
           </Box>
         </Tooltip>
       </div>
-
-      {/* Search Dialog */}
-      <SearchDialog
-        open={searchDialogOpen}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        onClose={() => setSearchDialogOpen(false)}
-        onConfirm={handleSearchConfirm}
-      />
 
       {/* Snackbar for notifications */}
       <Snackbar
