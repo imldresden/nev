@@ -4,9 +4,11 @@ import type { TableEntriesForTreeNodesQuery, TreeForTableQuery, TableEntriesForT
 import type { TreeNodeData } from "./data/TreeNodeData";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import shortid from 'shortid';
 
 function App() {
   const bcRef = useRef<BroadcastChannel | null>(null);
+  const id = shortid.generate();
   const [message, setMessage] = useState<{ responseType: string, payload: TableEntriesForTreeNodesResponse | TreeForTableResponse } | null>(null);
   const [backdropOpen, setBackdropOpen] = useState(true);
 
@@ -16,8 +18,10 @@ function App() {
 
     bc.addEventListener("message", event => {
       console.log("Received:", event.data);
-      setMessage(event.data);
-      setBackdropOpen(false)
+      if (event.data.id !== id) {
+        setMessage(event.data);
+        setBackdropOpen(false);
+      }
     });
 
     return () => bc.close();
@@ -25,8 +29,12 @@ function App() {
 
   const sendMessage = (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => {
     console.log("Sent:", msg)
-    bcRef.current?.postMessage(msg);
-    setBackdropOpen(true)
+    bcRef.current?.postMessage({ 
+      id,
+      queryType: msg.queryType, 
+      payload: msg.payload, 
+    });
+    setBackdropOpen(true);
   };
 
   useEffect(() => {

@@ -175,14 +175,14 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
   useEffect(() => {
     if (!message) return;
 
-    if (message && message.responseType === "treeForTable") {
+    if (message.responseType === "treeForTable") {
       const tftr = message.payload as TreeForTableResponse;
       const node = dataManager.handleType1Response(tftr);
       node.isRootNode = true;
       setRootNode(node);
       setQueries(tftr.tableEntries.entries.map(e => e.termTuple.join(",")));
     }
-    if (message && message.responseType === "tableEntriesForTreeNodes") {
+    if (message.responseType === "tableEntriesForTreeNodes") {
       dataManager.handleType2Response(rootNode, message.payload as TableEntriesForTreeNodesResponse);
       if ((message.payload as TableEntriesForTreeNodesResponse).length === 0) {
         setSnackbarError(true);
@@ -194,7 +194,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
       if (rootNode.getTableEntries().length > 1) setSnackbarMsg("Restriction of the tree has been lifted");
     }
-
   }, [message]);
 
   useEffect(() => {
@@ -441,7 +440,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
         </div>
         <Tooltip title="Search for specific table entries!" placement="left" enterDelay={500}>
           <TextField
-            autoFocus
             margin="dense"
             label="Search"
             fullWidth
