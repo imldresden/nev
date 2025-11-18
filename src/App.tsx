@@ -19,8 +19,8 @@ function App() {
 
     bc.addEventListener("message", event => {
       console.log("Received:", event.data);
+      setBackdropOpen(false);
       if (event.data.id === id) {
-        setBackdropOpen(false);
         setError(event.data.error);
         if (!event.data.error) {
           setMessage(event.data);
