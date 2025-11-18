@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Tree from "../Tree/Tree";
-import { Snackbar, Tooltip, Button, Slider, Box, Input } from "@mui/material";
+import { Snackbar, Tooltip, Button, Slider, Box, Input, Alert } from "@mui/material";
 import { DataManager } from "./DataManager";
 import { RuleNodeData, TableNodeData, TreeNodeData } from "../../data/TreeNodeData";
 import './../../assets/index.css'
@@ -16,14 +16,15 @@ import TextField from '@mui/material/TextField';
 import { ToggleButton, ToggleButtonGroup }  from "@mui/material";
 
 type SceneProps = {
-  sendMessage: (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => void;
+  error: string | null;
   message: { responseType: string, payload: TableEntriesForTreeNodesResponse | TreeForTableResponse } | null;
+  sendMessage: (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => void;
   codingButtonClicked: (node: TreeNodeData) => void; // Optional prop for coding button click handler
 };
 
 // ...imports...
 
-function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
+function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps) {
   // State for window dimensions
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -83,11 +84,9 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
   // State for snackbar notifications
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMsg, setSnackbarMsg] = useState("");
-  const [snackbarError, setSnackbarError] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState<{ msg: string, sev: "info" | "success" | "error"}>({ msg: "", sev: "info" });
 
   const [editQueryOpen, setEditQueryOpen] = useState(false);
-
   const [maxLength, setMaxLength] = useState(StringFormatter.maxLengthSlider);
 
   useEffect(() => {
@@ -107,13 +106,6 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
 
     setTreeVersion(v => v + 1);
   };
-
-  useEffect(() => {
-    if (snackbarError && snackbarOpen) {
-      const timer = setTimeout(() => setSnackbarError(false), 3000); //to not always set the error state when showing a snackbar
-      return () => clearTimeout(timer);
-    }
-  }, [snackbarError]);
 
   // State for panning to a specific node in the tree
   const [panToNodeId, setPanToNodeId] = useState<{ node: TreeNodeData, center?: boolean } | null>(null);
@@ -144,19 +136,19 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
         setMode("query");
         setFocusClicked(null);
         handleResetEffect("isGreyed");
-        setSnackbarMsg("Switched to Query Mode");
+        setSnackbarMsg({msg: "Switched to Query Mode", sev: "info"});
         setSnackbarOpen(true);
       }
       if (e.ctrlKey && e.key.toLowerCase() === "x") {
         setMode("explore");
-        setSnackbarMsg("Switched to Explore Mode");
+        setSnackbarMsg({msg: "Switched to Explore Mode", sev: "info"});
         setSnackbarOpen(true);
         setTreeVersion(v => v + 1);
       }
       if (e.ctrlKey && e.key.toLowerCase() === "m") {
         setMode(prev => {
           const newMode = prev === "explore" ? "query" : "explore";
-          setSnackbarMsg(`Switched to ${newMode.charAt(0).toUpperCase() + newMode.slice(1)} Mode`);
+          setSnackbarMsg({ msg: `Switched to ${newMode.charAt(0).toUpperCase() + newMode.slice(1)} Mode`, sev: "info"});
           setSnackbarOpen(true);
           if (newMode !== "explore") {
             setFocusClicked(null);
@@ -170,6 +162,13 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [mode, focusClicked]);
+
+  useEffect(() => {
+    if (!error) return;
+
+    setSnackbarMsg({ msg: `Nemo returned an error: ${error}`, sev: "error"});
+    setSnackbarOpen(true);
+  }, [error]);
 
   // Handle incoming messages and update tree/table data accordingly
   useEffect(() => {
@@ -185,14 +184,15 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
     if (message.responseType === "tableEntriesForTreeNodes") {
       dataManager.handleType2Response(rootNode, message.payload as TableEntriesForTreeNodesResponse);
       if ((message.payload as TableEntriesForTreeNodesResponse).length === 0) {
-        setSnackbarError(true);
-        setSnackbarMsg("Proof tree of that form does not exist!");
+        setSnackbarMsg({ msg: "Proof tree of that form does not exist!", sev: "error"});
         setSnackbarOpen(true);
       }
       setTableDialogVersion(v => v + 1);
       setTreeVersion(v => v + 1);
 
-      if (rootNode.getTableEntries().length > 1) setSnackbarMsg("Restriction of the tree has been lifted");
+      if (rootNode.getTableEntries().length > 1) { 
+        setSnackbarMsg({ msg: "Restriction of the tree has been lifted", sev: "success" });
+      }
     }
   }, [message]);
 
@@ -564,21 +564,19 @@ function Scene({ sendMessage, message, codingButtonClicked }: SceneProps) {
       </div>
 
       {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMsg}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        slotProps={{
-          content: {
-            sx: {
-              background: snackbarError ? "#d32f2f" : undefined,
-              color: "#fff"
-            }
-          }
-        }}
-      />
+      <Snackbar 
+        autoHideDuration={snackbarMsg.sev !== "error" ? 2000:60000}
+        open={snackbarOpen} 
+        onClose={() => setSnackbarOpen(false)}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarMsg.sev}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbarMsg.msg}
+        </Alert>
+      </Snackbar>
 
       {/* Table dialog panel (multiple tables) */}
       <TableDialogPanel

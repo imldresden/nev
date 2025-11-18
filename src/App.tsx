@@ -10,6 +10,7 @@ function App() {
   const bcRef = useRef<BroadcastChannel | null>(null);
   const id = shortid.generate();
   const [message, setMessage] = useState<{ responseType: string, payload: TableEntriesForTreeNodesResponse | TreeForTableResponse } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [backdropOpen, setBackdropOpen] = useState(true);
 
   useEffect(() => {
@@ -18,9 +19,12 @@ function App() {
 
     bc.addEventListener("message", event => {
       console.log("Received:", event.data);
-      if (event.data.id !== id) {
-        setMessage(event.data);
+      if (event.data.id === id) {
         setBackdropOpen(false);
+        setError(event.data.error);
+        if (!event.data.error) {
+          setMessage(event.data);
+        }
       }
     });
 
@@ -28,12 +32,13 @@ function App() {
   }, []);
 
   const sendMessage = (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => {
-    console.log("Sent:", msg)
-    bcRef.current?.postMessage({ 
+    const idmsg = { 
       id,
       queryType: msg.queryType, 
       payload: msg.payload, 
-    });
+    };
+    console.log("Sent:", idmsg);
+    bcRef.current?.postMessage(idmsg);
     setBackdropOpen(true);
   };
 
@@ -64,7 +69,12 @@ function App() {
 
   return (
     <div>
-      <Scene sendMessage={sendMessage} message={message} codingButtonClicked={handleCodingButtonClicked} />
+      <Scene 
+        error={error}
+        message={message} 
+        sendMessage={sendMessage} 
+        codingButtonClicked={handleCodingButtonClicked} 
+      />
       <Backdrop
         sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
         open={backdropOpen}
