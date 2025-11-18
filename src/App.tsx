@@ -8,7 +8,7 @@ import shortid from 'shortid';
 
 function App() {
   const bcRef = useRef<BroadcastChannel | null>(null);
-  const id = shortid.generate();
+  const [id] = useState(shortid.generate());
   const [message, setMessage] = useState<{ responseType: string, payload: TableEntriesForTreeNodesResponse | TreeForTableResponse } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [backdropOpen, setBackdropOpen] = useState(true);
@@ -19,10 +19,14 @@ function App() {
 
     bc.addEventListener("message", event => {
       console.log("Received:", event.data);
+      
       setBackdropOpen(false);
+      console.log(id)
+      console.log(event.data.id === id)
       if (event.data.id === id) {
-        setError(event.data.error);
-        if (!event.data.error) {
+        if (event.data.error) {
+          setError(event.data.error);  
+        } else {
           setMessage(event.data);
         }
       }

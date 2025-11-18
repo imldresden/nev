@@ -32,6 +32,7 @@ export class DataManager {
                 childrenId++;
             }
         }
+        
     }
 
     public createType1Query(entrie: TableEntryResponse, predicate: string) {
@@ -78,14 +79,14 @@ export class DataManager {
         if (ruleParameters.length === 0 && json.childInformation) parameters = json.childInformation.rule.relevantHeadPredicate.parameters!
         const tableNode = new TableNodeData(json, parameters, ownId);
         if (json.isCollapsed !== undefined) tableNode.isCollapsed = json.isCollapsed
-        if (json.isGreyed !== undefined) tableNode.isGreyed = json.isGreyed
+        if (json.isGreyed !== undefined) tableNode.isGreyed = false; // json.isGreyed
         if (json.searchedEntry !== undefined) this.searchedEntry = json.searchedEntry; //set the searched entry, if it exists
         if (tableNode.isValueInsideTable(this.searchedEntry)) tableNode.gotSearched = true; //if the searched entry is inside the table, set the isSearchedEntry flag to true
         if (json.childInformation?.children) { //check for childs
             if (json.childInformation?.rule !== undefined) { //if there is a rule (bc, maybe there are cases without a rule, idk)
                 const ruleNode = new RuleNodeData(json.childInformation.rule, ownId); //create the ruleNode
                 if (json.childInformation.isCollapsed !== undefined) ruleNode.isCollapsed = json.childInformation.isCollapsed
-                if (json.childInformation.isGreyed !== undefined) ruleNode.isGreyed = json.childInformation.isGreyed
+                if (json.childInformation.isGreyed !== undefined) ruleNode.isGreyed = false // json.childInformation.isGreyed
                 tableNode.addChild(ruleNode);
                 let childrenId = 0;
                 for (let i = 0; i < json.childInformation.children.length; i++) {

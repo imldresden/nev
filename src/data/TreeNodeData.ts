@@ -273,6 +273,7 @@ export class TableNodeData extends TreeNodeData {
 	}
 
   public isSingleEntryTable() {
+		console.log(this.getTableEntries().length === 1)
     return !this.moreEntriesExist && this.getTableEntries().length === 1;
   }
 }

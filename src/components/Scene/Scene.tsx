@@ -565,7 +565,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
       {/* Snackbar for notifications */}
       <Snackbar 
-        autoHideDuration={snackbarMsg.sev !== "error" ? 2000:60000}
+        autoHideDuration={snackbarMsg.sev !== "error" ? 2000:null}
         open={snackbarOpen} 
         onClose={() => setSnackbarOpen(false)}>
         <Alert

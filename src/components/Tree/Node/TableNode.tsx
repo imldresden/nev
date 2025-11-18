@@ -2,13 +2,14 @@ import type { TableNodeData, TreeNodeData } from '../../../data/TreeNodeData'
 import { useState } from 'react'
 import '../../../assets/Node.css'
 import { TableNodeBox } from './TableNodeBox'
-import AddRuleDialog from './AddRuleDialog'
+import AddRuleDialog, { getPredicateParts } from './AddRuleDialog'
 import {Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
 import { greyedButtonStyle, NORMAL_HEIGHT } from '../../../types/constants'
 import { FaCodeFork, FaCodePullRequest } from 'react-icons/fa6'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import type { Rule, TableEntryResponse } from '../../../types/types'
+import PositionDialog from './PositionDialog'
 
 
 type NodeProps = {
@@ -50,7 +51,7 @@ export default function TableNode({
     onPopOutClicked
 }: Readonly<NodeProps>) {
     const [hovered, setHovered] = useState(false)
-    const [activeDialog, setActiveDialog] = useState<"above" | "below" | null>(null)
+    const [activeDialog, setActiveDialog] = useState<"above" | "below" | "pos" | null>(null)
 
     const handleRuleAboveSelect = (rule: Rule, index: number) => {
         setActiveDialog(null)
@@ -101,7 +102,27 @@ export default function TableNode({
                         <button
                             type="button"
                             className={`custom-node-btn-top add${node.isGreyed ? ' node-blur' : ''}`}
-                            onClick={() => setActiveDialog("above")}
+                            onClick={() => { 
+                                const rulesAbove = node.getRulesAbove();
+                                if (rulesAbove.length > 1) {
+                                    setActiveDialog("above")
+                                } else if (rulesAbove.length === 1) {
+                                    const rule = rulesAbove[0];
+                                    const body = rule.stringRepresentation.split(':-').map(s => s.trim())[1];
+                                    const nodeName = node.getName();
+                                    const possibleChildrenNames = getPredicateParts(body || "").map(p => p.split('(')[0].trim());
+                                    
+                                    const childrenWithSameName = possibleChildrenNames.filter(n => n === nodeName).length;
+                                    if (childrenWithSameName === 1) {
+                                        const pos = possibleChildrenNames.findIndex(n => n === nodeName);
+                                        handleRuleAboveSelect(rule, pos);
+                                    } else { //if there are multiple children with the same name, show position dialog
+                                        setActiveDialog("pos");
+                                    }
+                                } else {
+                                    handleRuleAboveSelect(rulesAbove[0], 0)
+                                }
+                            }}
                             style={greyedButtonStyle(node) as React.CSSProperties}
                         >
                             {/*<FaCodeBranch />*/}
@@ -160,6 +181,7 @@ export default function TableNode({
                     </Tooltip>
                 )
             }
+
             {/*hovered && mode === "explore" && (
                 <Tooltip title={"Highlight in Code!"} placement="right" enterDelay={500}>
                     <button
@@ -172,11 +194,38 @@ export default function TableNode({
                     </button>
                 </Tooltip>
             )*/}
+
             {/* RulesAbove */}
-            <AddRuleDialog title={"Add Rule Above"} open={activeDialog === "above"} onClose={() => setActiveDialog(null)} rules={node.getRulesAbove()} onRuleSelect={handleRuleAboveSelect} node={node} showPositionDialog={true}/>
+            <AddRuleDialog 
+                title={"Choose Rule to Add Above: "} 
+                open={activeDialog === "above"} 
+                onClose={() => setActiveDialog(null)} 
+                rules={node.getRulesAbove()} 
+                onRuleSelect={handleRuleAboveSelect} 
+                node={node} 
+                showPositionDialog={true}
+            />
+
+            {/* Only Position Dialog*/}
+            <PositionDialog
+                open={activeDialog === "pos"} 
+                onClose={() => setActiveDialog(null)} 
+                node={node} 
+                rule={node.getRulesAbove()[0]} 
+                onPosSelect={handleRuleAboveSelect} 
+            />
 
             {/* RulesBelow */}
-            <AddRuleDialog title={"Add Rule Below"} open={activeDialog === "below"} onClose={() => setActiveDialog(null)} rules={node.getRulesBelow()} onRuleSelect={handleRuleBelowSelect} node={node}/>
+            <AddRuleDialog 
+                title={"Choose Rule to Add Below: "} 
+                open={activeDialog === "below"} 
+                onClose={() => setActiveDialog(null)} 
+                rules={node.getRulesBelow()} 
+                onRuleSelect={handleRuleBelowSelect} 
+                node={node}
+            />
+
+
         </div >
     )
 }

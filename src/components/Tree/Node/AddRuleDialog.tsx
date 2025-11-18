@@ -3,13 +3,12 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemText from '@mui/material/ListItemText'
 import type { Rule } from '../../../types/types'
 import { useState } from 'react'
 import type { TableNodeData } from '../../../data/TreeNodeData'
+import { ButtonGroup, IconButton } from '@mui/material'
+import { GridCloseIcon } from '@mui/x-data-grid'
+import PositionDialog from './PositionDialog'
 
 type AddRuleDialogProps = {
   open: boolean
@@ -40,25 +39,33 @@ function splitPredicates(body: string): string[] {
   return result;
 }
 
-function getPredicateParts(body: string): string[] {
+export function getPredicateParts(body: string): string[] {
   return splitPredicates(body)
     .map(p => p.trim().replace(/[.\s]*$/, ""))
     .filter(p => p.includes('(') && p.endsWith(')'));
 }
 
-function getRulePositions(rule: Rule, nodeName: string): string[] {
-  const [head, body] = rule.stringRepresentation.split(':-').map(s => s.trim());
-  if (!body) return [];
-  const bodyParts = getPredicateParts(body);
-  const positions: string[] = [];
-  for (let i = 0; i < bodyParts.length; i++) {
-    const parts = [...bodyParts];
-    if (parts[i].startsWith(nodeName)) {
-      parts[i] = '<currentRoot>';
-      positions.push(`${head} :- ${parts.join(', ')}`);
+export function breakRuleString(label:string): string {
+    const maxLength = 50;
+    if (maxLength > label.length) { 
+        return label; // no need to break it. 
     }
-  }
-  return positions;
+
+    const br = "<br>&emsp;";
+    const ret = [label[0]];
+
+    for (let i = 1; i < label.length; i++) {
+      const char = label[i];
+      const symbol = `${label[i-1]}${char}`; 
+      
+      ret.push(char);
+      
+      if (new Set([":-", "),", "],"]).has(symbol)) {
+          ret.push(br);
+      }
+    }
+
+    return ret.join("");
 }
 
 export default function AddRuleDialog({
@@ -70,8 +77,8 @@ export default function AddRuleDialog({
   title = "Rules",
   showPositionDialog = false
 }: Readonly<AddRuleDialogProps>) {
-  const [selectedRule, setSelectedRule] = useState<Rule | null>(null)
-  const [positionDialogOpen, setPositionDialogOpen] = useState(false)
+  const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
+  const [positionDialogOpen, setPositionDialogOpen] = useState(false);
 
   const handleRuleClick = (rule: Rule) => {
     if (!showPositionDialog) { //if add below, add rule on position 0
@@ -97,77 +104,53 @@ export default function AddRuleDialog({
     }
   };
 
-  const handlePositionSelect = (idx: number) => {
-    if (selectedRule) {
-      onRuleSelect(selectedRule, idx)
-      setPositionDialogOpen(false)
-      setSelectedRule(null)
-    }
-  }
-
   const handlePositionDialogClose = () => {
     setPositionDialogOpen(false)
     setSelectedRule(null)
   }
 
-  return (
-    <>
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle sx={{ pb: 1, pt: 1.5 }}>{title}</DialogTitle>
-        <DialogContent sx={{ p: 1, pb: 0 }}>
-          {/*showPositionDialog && (
-            <div style={{ color: "#b71c1c", marginBottom: 8, paddingLeft: 16, fontWeight: 500 }}>
-              The query will be lost when adding a new root!
-            </div>
-          )*/}
-          <List sx={{ p: 0 }}>
-            {rules.map((rule, idx) => (
-              <ListItem
-                key={idx}
-                disablePadding
-                sx={{ minHeight: 28 }}
-              >
-                <ListItemButton
-                  onClick={() => handleRuleClick(rule)}
-                  sx={{ py: 0.5, minHeight: 28 }}
-                >
-                  <ListItemText
-                    primary={rule.stringRepresentation}
-                    primaryTypographyProps={{ fontSize: 14 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions sx={{ p: 1, pt: 0 }}>
-          <Button onClick={onClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
+  return (<>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle sx={{ minWidth: 280, pb: 1, pt: 1.5 }}>{title}</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={onClose}
+        sx={(theme) => ({
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <GridCloseIcon />
+      </IconButton>
+      <DialogContent sx={{ margin: "auto", maxHeight: 500, p: 1, pb: 0 }}>
+        <ButtonGroup 
+          orientation="vertical" 
+          aria-label="Vertical button group"
+          sx={{ alignContent: "center"}}
+        >
+          {rules.map((rule, idx) => (
+            <Button 
+              key={idx} 
+              sx={{ textTransform: 'none', textAlign: "left" }} 
+              variant="outlined" 
+              onClick={() => handleRuleClick(rule)}
+            >
+              <div 
+                style={{ whiteSpace: "nowrap" }} 
+                dangerouslySetInnerHTML={{ 
+                  "__html": breakRuleString(rule.stringRepresentation) 
+                }}
+              />
+            </Button>
+          ))}
+        </ButtonGroup>
+      </DialogContent>
+      <DialogActions sx={{ p: 1, pt: 0 }}>
+      </DialogActions>
+    </Dialog>
 
-      <Dialog open={positionDialogOpen} onClose={handlePositionDialogClose}>
-        <DialogTitle sx={{ pb: 1, pt: 1.5 }}>Choose Position</DialogTitle>
-        <DialogContent sx={{ p: 1, pb: 0 }}>
-          <List sx={{ p: 0 }}>
-            {selectedRule && getRulePositions(selectedRule, node.getName()).map((option, idx) => (
-              <ListItem key={idx} disablePadding sx={{ minHeight: 28 }}>
-                <ListItemButton
-                  onClick={() => handlePositionSelect(idx)}
-                  sx={{ py: 0.5, minHeight: 28 }}
-                >
-                  <ListItemText
-                    primary={option}
-                    primaryTypographyProps={{ fontSize: 14 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-        <DialogActions sx={{ p: 1, pt: 0 }}>
-          <Button onClick={handlePositionDialogClose}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  )
+    <PositionDialog open={positionDialogOpen} onClose={handlePositionDialogClose} node={node} rule={selectedRule} onPosSelect={onRuleSelect} />
+  </>)
 }
