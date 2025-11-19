@@ -272,10 +272,9 @@ export class TableNodeData extends TreeNodeData {
 		return this.rulesBelow;
 	}
 
-  public isSingleEntryTable() {
-		console.log(this.getTableEntries().length === 1)
-    return !this.moreEntriesExist && this.getTableEntries().length === 1;
-  }
+	public isSingleEntryTable() {
+		return !this.moreEntriesExist && this.getTableEntries().length === 1;
+	}
 }
 
 export class RuleNodeData extends TreeNodeData {

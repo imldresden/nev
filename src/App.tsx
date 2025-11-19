@@ -21,8 +21,7 @@ function App() {
       console.log("Received:", event.data);
       
       setBackdropOpen(false);
-      console.log(id)
-      console.log(event.data.id === id)
+      
       if (event.data.id === id) {
         if (event.data.error) {
           setError(event.data.error);  

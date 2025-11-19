@@ -51,19 +51,13 @@ export default function TreeNodeRenderer({
   if (node.data instanceof TableNodeData) {
     return (
       <foreignObject
-        x={node.x - node.data.width / 2}
+        x={node.x}
         y={node.y}
-        width={node.data.width}
+        //width={node.data.width}
         height={node.data.height}
         style={{ overflow: 'visible' }}
       >
-        <div
-          style={{
-            width: node.data.width,
-            height: node.data.height,
-          }}
-        >
-          <TableNode
+        <TableNode
             node={node.data}
             mode={mode}
             setFocusClicked={setFocusClicked}
@@ -82,7 +76,6 @@ export default function TreeNodeRenderer({
             setHoveredNode={setHoveredNode}
             onPopOutClicked={onPopOutClicked}
           />
-        </div>
       </foreignObject>
     )
   }
@@ -95,13 +88,7 @@ export default function TreeNodeRenderer({
         height={node.data.height}
         style={{ overflow: 'visible' }}
       >
-        <div
-          style={{
-            width: node.data.width,
-            height: node.data.height,
-          }}
-        >
-          <RuleNode
+        <RuleNode
             node={node.data}
             mode={mode}
             onMouseLeftButton={onMouseLeftButton}
@@ -115,7 +102,6 @@ export default function TreeNodeRenderer({
             isHovered={hoveredNode === node.data}
             setHoveredNode={setHoveredNode}
           />
-        </div>
       </foreignObject>
     )
   }

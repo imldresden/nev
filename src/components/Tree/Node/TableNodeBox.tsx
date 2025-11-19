@@ -27,20 +27,6 @@ type TableNodeDetailsProps = {
   onPopOutClicked: (node: TableNodeData) => void;
 };
 
-function SingleEntryTable({ node }: { readonly node: TableNodeData }) {
-  const name = node.getName();
-  return (
-    <div
-      className="table-node-box__header"
-      style={{ cursor: 'pointer' }}
-    >
-      <span>
-        {StringFormatter.formatPredicate(name, true, node.getTableEntries()[0].termTuple)}
-      </span>
-    </div>
-  );
-}
-
 function TableNodeHeader({
   node,
   onClick,
@@ -50,6 +36,12 @@ function TableNodeHeader({
 }) {
   const name = node.getName();
   const needsTooltip = StringFormatter.needsTruncation(name);
+  const formattedName = node.isSingleEntryTable() ? 
+    StringFormatter.formatPredicate(name, true, node.getTableEntries()[0].termTuple) : 
+    StringFormatter.formatPredicate(name, true, node.parameterPredicate);
+  const unshortenedFormattedName = node.isSingleEntryTable() ? 
+    StringFormatter.formatPredicate(name, false, node.getTableEntries()[0].termTuple) : 
+    StringFormatter.formatPredicate(name, false, node.parameterPredicate);
 
   return (
     <Tooltip title={node.isExpanded ? "Hide details!" : "See more details!"} placement="right" enterDelay={500}>
@@ -59,19 +51,11 @@ function TableNodeHeader({
         onClick={onClick}
       >
         {needsTooltip ? (
-          <Tooltip
-            title={StringFormatter.formatPredicate(name, false, node.parameterPredicate)}
-            placement="top"
-            enterDelay={800}
-          >
-            <span>
-              {StringFormatter.formatPredicate(name, true, node.parameterPredicate)}
-            </span>
+          <Tooltip title={unshortenedFormattedName} placement="top" enterDelay={800}>
+            <span style={{ whiteSpace: "nowrap"}}>&nbsp;{formattedName}&nbsp;</span>
           </Tooltip>
         ) : (
-          <span>
-            {StringFormatter.formatPredicate(name, true, node.parameterPredicate)}
-          </span>
+          <span style={{ whiteSpace: "nowrap"}}>&nbsp;{formattedName}&nbsp;</span>
         )}
       </div>
     </Tooltip>
@@ -290,7 +274,8 @@ export function TableNodeBox({ node, mode, isHovered, clicked, onNodeClicked, on
         ${node.isGreyed ? ' node-grey' : ''}`
       }
       style={{
-        width: node.width,
+        // width: node.width,
+        
         height: node.height,
         minWidth: 60,
         minHeight: 33,
@@ -300,26 +285,19 @@ export function TableNodeBox({ node, mode, isHovered, clicked, onNodeClicked, on
         zIndex: outlineColor ? 10 : undefined,
       }}
     >
-      {node.isSingleEntryTable() 
-        ? (
-          <SingleEntryTable node={node} />
-        )
-        : (
-          <>
-            <TableNodeHeader
-              node={node}
-              onClick={() => {
-                node.isExpanded = !node.isExpanded;
-                onNodeClicked(node);
-              }}
-            />
+      {<>
+        <TableNodeHeader
+          node={node}
+          onClick={() => {
+            node.isExpanded = !node.isExpanded;
+            onNodeClicked(node);
+          }}
+        />
 
-            {node.isExpanded && (
-              <TableNodeDetails node={node} mode={mode} onRowClicked={onRowClicked} onPopOutClicked={onPopOutClicked} />
-            )}
-          </>
-        )
-      }
+        {node.isExpanded && (
+          <TableNodeDetails node={node} mode={mode} onRowClicked={onRowClicked} onPopOutClicked={onPopOutClicked} />
+        )}
+      </>}
     </div>
   )
 }

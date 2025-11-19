@@ -258,6 +258,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
       sendType2Message(newRoot, true);
     }
   };
+  
   const handleAddRuleBelowButtonClick = (node: TableNodeData, id: Rule) => {
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
     dataManager.addRuleAtLeaf(node, id)
