@@ -32,6 +32,7 @@ export abstract class TreeNodeData {
 		this.name = name;
 		this.initialWidth = (measureTextWidth(StringFormatter.formatRuleName(name, true)));
 		if (this instanceof TableNodeData) {
+			
 			this.initialWidth = (measureTextWidth(StringFormatter.formatPredicate(name, true, parameter)));
 		}
 
@@ -138,20 +139,21 @@ export class TableNodeData extends TreeNodeData {
 	}
 
 	//create Type 2 Query
-	public toTableEntriesForTreeNodesQueryJSON(createEmptyQuery: boolean, bool: boolean = false, queries: string[] = []): TableEntriesForTreeNodesQuery {
+	public toTableEntriesForTreeNodesQueryJSON(createEmptyQuery: boolean, isUnrestricted: boolean = false, queries: string[] = []): TableEntriesForTreeNodesQuery {
 		const children = this.getChildren() as TreeNodeData[] | undefined;
 		const base: TableEntriesForTreeNodesQuery = { predicate: "" };
-		base.tableEntries = { queries: [] };
+		base.tableEntries = { 
+			queries: [],
+			pagination: { start: this.pagination.start, count: this.pagination.count }
+		}; 
 
 		if (children && children.length > 0) {
 			base.childInformation = children[0].toTableEntriesForTreeNodesQueryJSON(createEmptyQuery) as InnerTableQueryChildInformation;
 		}
-		if (bool) {
+		if (isUnrestricted) {
 			base.predicate = this.name;
 			base.tableEntries.queries = createEmptyQuery ? [] : queries;
-			return base;
 		}
-		base.tableEntries.pagination = { start: this.pagination.start, count: this.pagination.count };
 		return base;
 	}
 

@@ -275,7 +275,6 @@ export function TableNodeBox({ node, mode, isHovered, clicked, onNodeClicked, on
       }
       style={{
         // width: node.width,
-        
         height: node.height,
         minWidth: 60,
         minHeight: 33,
