@@ -272,14 +272,14 @@ export class DataManager {
         node.setCollapsed(bool);
     }
 
-    //increase sice of the node, if expanded
+    //increase size of the node, if expanded
     public changeNodeLayout(node: TreeNodeData, expanded: boolean) {
         if (expanded) {
             node.height = EXTENDED_HEIGHT;
-            if (node.width < EXTENDED_WIDTH) node.width = EXTENDED_WIDTH;
+            node.width = Math.max(node.initialWidth, node.width, EXTENDED_WIDTH);
         } else {
             node.height = NORMAL_HEIGHT;
-            node.width = node.initialWidth
+            node.width = Math.min(node.initialWidth, node.width);
         }
     }
 

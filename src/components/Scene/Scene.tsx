@@ -97,13 +97,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const handleMaxLengthChange = (value: number) => {
     setMaxLength(value);
     StringFormatter.maxLength = value;
-
-    function updateWidths(node: TreeNodeData) {
-      node.updateInitialWidth();
-      node.getChildren().forEach(updateWidths);
-    }
-    updateWidths(rootNode);
-
+    rootNode.update();
     setTreeVersion(v => v + 1);
   };
 
@@ -180,14 +174,9 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
       node.isRootNode = true;
       setRootNode(node);
       setQueries(tftr.tableEntries.entries.map(e => e.termTuple.join(",")));
-      
-      function updateWidths(node: TreeNodeData) {
-        node.updateInitialWidth();
-        node.getChildren().forEach(updateWidths);
-      }
-      updateWidths(node);
+      node.update()
     }
-    
+
     if (message.responseType === "tableEntriesForTreeNodes") {
       dataManager.handleType2Response(rootNode, message.payload as TableEntriesForTreeNodesResponse);
       if ((message.payload as TableEntriesForTreeNodesResponse).length === 0) {

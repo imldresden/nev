@@ -32,7 +32,6 @@ export abstract class TreeNodeData {
 		this.name = name;
 		this.initialWidth = (measureTextWidth(StringFormatter.formatRuleName(name, true)));
 		if (this instanceof TableNodeData) {
-			
 			this.initialWidth = (measureTextWidth(StringFormatter.formatPredicate(name, true, parameter)));
 		}
 
@@ -60,6 +59,14 @@ export abstract class TreeNodeData {
 
 	public updateId(id: number[]) {
 		this.id = id;
+	}
+
+	public update() {
+		function updateWidths(node: TreeNodeData) {
+			node.updateInitialWidth();
+			node.getChildren().forEach(updateWidths);
+		}
+		updateWidths(this);
 	}
 
 	public addChild(child: TreeNodeData) {

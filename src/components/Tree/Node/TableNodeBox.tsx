@@ -274,7 +274,7 @@ export function TableNodeBox({ node, mode, isHovered, clicked, onNodeClicked, on
         ${node.isGreyed ? ' node-grey' : ''}`
       }
       style={{
-        // width: node.width,
+        width: node.width,
         height: node.height,
         minWidth: 60,
         minHeight: 33,
