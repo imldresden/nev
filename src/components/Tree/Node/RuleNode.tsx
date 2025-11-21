@@ -6,6 +6,7 @@ import { Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { greyedButtonStyle } from '../../../types/constants'
+import { type Timeouts } from '../../../types/types'
 
 type NodeProps = {
   node: RuleNodeData;
@@ -35,18 +36,32 @@ export default function RuleNode({
   isHovered,
   setHoveredNode
 }: Readonly<NodeProps>) {
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered] = useState(false);
+  const [hoverMap] = useState<Timeouts>({});
+
   return (
     <div
       className={`custom-node${isHovered ? ' hovered' : ''}`}
-      onMouseLeave={() => {setHovered(false); setHoveredNode(null)}}
+      onMouseLeave={() => {
+            const id = node.id.join('');
+            hoverMap[id] = setTimeout(() => {
+                setHovered(false); 
+                setHoveredNode(null)
+            }, 1500) 
+        }}
+        
       style={{
         background: isHovered ? '#eaf6fb' : undefined
       }}
     >
       <RuleNodeBox
         node={node}
-        onMouseEnter={() => {setHovered(true); setHoveredNode(node)}}
+        onMouseEnter={() => {
+            const id = node.id.join('');
+            clearTimeout(hoverMap[id]);
+            setHovered(true); 
+            setHoveredNode(node);
+        }}
       />
       {hovered && mode === "query" && (
         <Tooltip title="Focus on this rule!" placement="right" enterDelay={500}>
@@ -103,7 +118,7 @@ export default function RuleNode({
           <Tooltip title="Collapse the subtree!" placement="right" enterDelay={500}>
             <button
               type="button"
-              className="custom-node-btn-bottom"
+              className="custom-node-btn-bottom collapse"
               onClick={() => {
                 onCollapseButtonClick(node, !node.isCollapsed)
                 setHovered(false)

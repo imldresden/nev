@@ -11,12 +11,14 @@ type TreeNodeRendererProps = {
   setFocusClicked: (node: TreeNodeData | null) => void;
   onAddAboveButtonClick: (ruleId: Rule, index: number) => void;
   onAddBelowButtonClick: (node: TableNodeData, ruleId: Rule) => void;
-  onRemoveButtonClick: (node: TreeNodeData) => void;
+  onRemoveAboveButtonClick: (node: TreeNodeData) => void;
+  onRemoveBelowButtonClick: (node: TreeNodeData) => void;
   onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
   onNodeClicked: (node: TreeNodeData) => void;
   onMouseLeftButton: () => void;
   giveFocusPreview: (node: TreeNodeData) => void;
   giveRemoveAbovePreview: (node: TreeNodeData) => void;
+  giveRemoveBelowPreview: (node: TreeNodeData) => void;
   onFocusButtonClick: (node: TreeNodeData) => void;
   onFocusNode: (node: TreeNodeData, bool?: boolean) => void;
   onRowClicked: (row: TableEntryResponse, predicate: string) => void;
@@ -35,11 +37,13 @@ export default function TreeNodeRenderer({
   codingButtonClicked,
   onAddAboveButtonClick,
   onAddBelowButtonClick,
-  onRemoveButtonClick,
+  onRemoveAboveButtonClick,
+  onRemoveBelowButtonClick,
   onCollapseButtonClick,
   onMouseLeftButton,
   giveFocusPreview,
   giveRemoveAbovePreview,
+  giveRemoveBelowPreview,
   onNodeClicked,
   onFocusButtonClick,
   onFocusNode,
@@ -64,8 +68,10 @@ export default function TreeNodeRenderer({
             focusClicked={focusClicked}
             onRowClicked={onRowClicked}
             codingButtonClicked={codingButtonClicked}
-            onRemoveButtonClick={onRemoveButtonClick}
+            onRemoveAboveButtonClick={onRemoveAboveButtonClick}
+            onRemoveBelowButtonClick={onRemoveBelowButtonClick}
             giveRemoveAbovePreview= {giveRemoveAbovePreview}
+            giveRemoveBelowPreview= {giveRemoveBelowPreview}
             onMouseLeftButton={onMouseLeftButton}
             onNodeClicked={onNodeClicked}
             onAddAboveButtonClick={onAddAboveButtonClick}

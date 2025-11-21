@@ -82,12 +82,29 @@
   bottom: -22px;
   transform: translateX(-50%);
   border-radius: 0 0 50% 50%;
+  
+}
+
+.custom-node-btn-bottom.show-hide,
+.custom-node-btn-bottom.collapse {
   background: #3498db;
 }
 
-.custom-node-btn-bottom:hover,
-.custom-node-btn-bottom:focus {
+.custom-node-btn-bottom.show-hide:hover,
+.custom-node-btn-bottom.show-hide:focus,
+.custom-node-btn-bottom.collapse:hover,
+.custom-node-btn-bottom.collapse:focus {
   background: #217dbb;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.custom-node-btn-bottom.cut-below{
+  background: #e74c3c;
+}
+
+.custom-node-btn-bottom.cut-below:hover,
+.custom-node-btn-bottom.cut-below:focus {
+  background: #c0392b;
   box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
 }
 

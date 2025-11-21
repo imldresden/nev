@@ -244,6 +244,14 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     sendType2Message(rootNode);
   };
 
+
+  const handleRemoveBelowButtonClick = (node: TreeNodeData) => {
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.removeBelow(node);
+    dataManager.updateTreeDataStructure(rootNode)
+    sendType2Message(rootNode);
+  };
+
   // Handle adding a rule to a node
   const handleAddRuleAboveButtonClick = (id: Rule, index: number) => {
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
@@ -611,6 +619,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         data={rootNode}
         mode={mode}
         giveRemoveAbovePreview={handleRemoveAbovePreview}
+        giveRemoveBelowPreview={handleRemoveEdgePreview}
         panToNodeId={panToNodeId}
         hoveredNode={hoveredNode}
         setHoveredNode={setHoveredNode}
@@ -618,7 +627,8 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         width={dimensions.width}
         height={dimensions.height}
         codingButtonClicked={codingButtonClicked}
-        onRemoveButtonClick={handleRemoveAboveButtonClick}
+        onRemoveAboveButtonClick={handleRemoveAboveButtonClick}
+        onRemoveBelowButtonClick={handleRemoveBelowButtonClick}
         onAddAboveButtonClick={handleAddRuleAboveButtonClick}
         onAddBelowButtonClick={handleAddRuleBelowButtonClick}
         onEdgeRemoveButtonClick={handleRemoveButtonClick}

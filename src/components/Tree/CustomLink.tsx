@@ -1,35 +1,22 @@
-import { useState } from "react";
 import '../../assets/Link.css'
-import { TableNodeData, type TreeNodeData } from "../../data/TreeNodeData";
 import type { PositionedTableNodeData } from "../../data/TreeNodeData";
-import { EXTENDED_HEIGHT, greyedButtonStyle, NORMAL_HEIGHT } from "../../types/constants";
-import { Tooltip } from "@mui/material";
-import { FaScissors } from "react-icons/fa6";
+import { EXTENDED_HEIGHT, NORMAL_HEIGHT } from "../../types/constants";
 
 type LinkProps = {
   source: PositionedTableNodeData;
   target: PositionedTableNodeData;
-  mode: "explore" | "query";
-  markerId?: string;
-  onEdgeRemoveButtonClick: (source: TreeNodeData, target: TreeNodeData) => void;
-  handleRemoveEdgePreview: (source: TreeNodeData) => void;
-  onMouseLeftButton: () => void;
 };
 
-export default function CustomLink({ source, target, mode, onEdgeRemoveButtonClick,onMouseLeftButton, handleRemoveEdgePreview }: Readonly<LinkProps>) {
-  const [showButton, setShowButton] = useState(false);
-
+export default function CustomLink({ source, target }: Readonly<LinkProps>) {
   const sourcePoint = [
     source.x,
     source.y + (source.data.isExpanded ? EXTENDED_HEIGHT + 4: NORMAL_HEIGHT * 3 - 9)
   ]
+  
   const targetPoint = [
     target.x,
     target.y + 2
   ]
-
-  const midX = (sourcePoint[0] + targetPoint[0]) / 2;
-  const midY = (sourcePoint[1] + targetPoint[1]) / 2;
 
   const path = `
   M${sourcePoint[0]},${sourcePoint[1]}
@@ -39,10 +26,7 @@ export default function CustomLink({ source, target, mode, onEdgeRemoveButtonCli
   const isGrey = source.data.isGreyed || target.data.isGreyed;
 
   return (
-    <g
-      onMouseEnter={() => setShowButton(true)}
-      onMouseLeave={() => setShowButton(false)}
-    >
+    <g>
       <path
         d={path}
         fill="none"
@@ -61,22 +45,6 @@ export default function CustomLink({ source, target, mode, onEdgeRemoveButtonCli
           `${isGrey ? 'node-grey' : ''}`
         }
       />
-
-      {showButton && (source.data instanceof TableNodeData) && mode === "query" && (
-        <foreignObject x={midX - 12} y={midY - 12} width={24} height={24}>
-          <Tooltip title="Cut this edge!" placement="right" enterDelay={500}>
-            <button
-              className="custom-link-btn"
-              onClick={() => onEdgeRemoveButtonClick(source.data, target.data)}
-              onMouseEnter={() => handleRemoveEdgePreview(source.data)}
-              onMouseLeave={() => onMouseLeftButton()}
-              style={greyedButtonStyle(source.data) as React.CSSProperties}
-            >
-              <FaScissors />
-            </button>
-          </Tooltip>
-        </foreignObject>
-      )}
     </g>
   );
 }

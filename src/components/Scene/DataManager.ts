@@ -242,6 +242,11 @@ export class DataManager {
         source.removeChild(target);
     }
 
+    // remove below
+    public removeBelow(node: TreeNodeData) {
+        node.removeChildren();
+    }
+
     //for highlighting of nodes, if they have specific values
     public searchForEntry(rootNode: TableNodeData, entry: string) {
         this.searchedEntry = entry;

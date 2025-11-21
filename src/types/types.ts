@@ -3,6 +3,10 @@ export type UndoRedoState = UndoRedoStateTable & {
   childInformation?: UndoRedoStateRule;
 };
 
+export type Timeouts = {
+    [key: string]: number;
+};
+
 export type UndoRedoStateRule = {
   rule: Rule;
   isCollapsed?: boolean;

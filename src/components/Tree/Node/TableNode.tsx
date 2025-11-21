@@ -6,9 +6,9 @@ import AddRuleDialog, { getPredicateParts } from './AddRuleDialog'
 import {Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
 import { greyedButtonStyle, NORMAL_HEIGHT } from '../../../types/constants'
-import { FaCodeFork, FaCodePullRequest } from 'react-icons/fa6'
+import { FaCodeFork, FaCodePullRequest, FaScissors } from 'react-icons/fa6'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
-import type { Rule, TableEntryResponse } from '../../../types/types'
+import type { Rule, TableEntryResponse, Timeouts } from '../../../types/types'
 import PositionDialog from './PositionDialog'
 
 
@@ -20,7 +20,9 @@ type NodeProps = {
     onAddAboveButtonClick: (ruleId: Rule, index: number) => void;
     onAddBelowButtonClick: (node: TableNodeData, ruleId: Rule) => void;
     giveRemoveAbovePreview: (node: TreeNodeData) => void;
-    onRemoveButtonClick: (node: TreeNodeData) => void;
+    giveRemoveBelowPreview: (node: TreeNodeData) => void;
+    onRemoveAboveButtonClick: (node: TreeNodeData) => void;
+    onRemoveBelowButtonClick: (node: TreeNodeData) => void;
     onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
     onNodeClicked: (node: TreeNodeData) => void;
     onMouseLeftButton: () => void;
@@ -40,9 +42,11 @@ export default function TableNode({
     onAddAboveButtonClick,
     onAddBelowButtonClick,
     onMouseLeftButton,
-    onRemoveButtonClick,
+    onRemoveAboveButtonClick,
+    onRemoveBelowButtonClick,
     onCollapseButtonClick,
     giveRemoveAbovePreview,
+    giveRemoveBelowPreview,
     onNodeClicked,
     onRowClicked,
     onFocusButtonClick,
@@ -51,7 +55,8 @@ export default function TableNode({
     onPopOutClicked
 }: Readonly<NodeProps>) {
     const [hovered, setHovered] = useState(false)
-    const [activeDialog, setActiveDialog] = useState<"above" | "below" | "pos" | null>(null)
+    const [activeDialog, setActiveDialog] = useState<"above" | "below" | "pos" | null>(null)    
+    const [hoverMap] = useState<Timeouts>({});
 
     const handleRuleAboveSelect = (rule: Rule, index: number) => {
         setActiveDialog(null)
@@ -65,8 +70,20 @@ export default function TableNode({
     return (
         <div
             className={`custom-node${hovered ? ' hovered' : ''}`}
-            onMouseLeave={() => {setHovered(false); setHoveredNode(null)}}
-            onMouseEnter={() => {setHovered(true); setHoveredNode(node)}}
+            onMouseLeave={() => {
+                const id = node.id.join('');
+                hoverMap[id] = setTimeout(() => {
+                    setHovered(false);
+                    setHoveredNode(null);
+                }, 1500) 
+            }}
+
+            onMouseEnter={() => {
+                const id = node.id.join('');
+                clearTimeout(hoverMap[id]);
+                setHovered(true); 
+                setHoveredNode(node);
+            }}
         >
             <TableNodeBox
                 node={node}
@@ -81,7 +98,7 @@ export default function TableNode({
                     <button
                         type="button"
                         className="custom-node-btn-corner-base custom-node-btn-corner-explore"
-                        style={{ top: -NORMAL_HEIGHT, left: node.width - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
+                        style={{ top: -NORMAL_HEIGHT, left: node.width/2 - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
                         onClick={() => {
                             if (focusClicked === node) {
                                 setFocusClicked(null)
@@ -138,7 +155,14 @@ export default function TableNode({
                         <button
                             type="button"
                             className={`custom-node-btn-bottom add${node.isGreyed ? ' node-blur' : ''}`}
-                            onClick={() => setActiveDialog("below")}
+                            onClick={() => {
+                                const rulesBelow = node.getRulesBelow();
+                                if (rulesBelow.length > 1) {
+                                    setActiveDialog("below");
+                                } else {
+                                    handleRuleBelowSelect(rulesBelow[0]);
+                                }
+                            }}
                             style={greyedButtonStyle(node) as React.CSSProperties}
                         >
                             <FaCodePullRequest style={{ transform: "scaleY(-1)" }} />
@@ -153,7 +177,7 @@ export default function TableNode({
                         <button
                             type="button"
                             className="custom-node-btn-top"
-                            onClick={() => onRemoveButtonClick(node)}
+                            onClick={() => onRemoveAboveButtonClick(node)}
                             onMouseEnter={() => giveRemoveAbovePreview(node)}
                             onMouseLeave={onMouseLeftButton}
                             style={greyedButtonStyle(node) as React.CSSProperties}
@@ -165,11 +189,27 @@ export default function TableNode({
             }
 
             {
+                hovered && !node.isLeafNode && mode === "query" && (        
+                    <Tooltip title="Cut this edge!" placement="right" enterDelay={500}>
+                        <button
+                            className="custom-node-btn-bottom cut-below"
+                            onClick={() => onRemoveBelowButtonClick(node)} // onEdgeRemoveButtonClick(source.data, target.data)
+                            onMouseEnter={() => giveRemoveBelowPreview(node)}
+                            onMouseLeave={onMouseLeftButton}
+                            style={greyedButtonStyle(node) as React.CSSProperties}
+                        >
+                            <FaScissors />
+                        </button>
+                    </Tooltip>
+                )
+            }
+
+            {
                 !node.isLeafNode && (hovered || node.isCollapsed) && mode === "explore" && (
                     <Tooltip title={node.isCollapsed ? "Show the subtree!" : "Hide the subtree!"} placement="right" enterDelay={500}>
                         <button
                             type="button"
-                            className="custom-node-btn-bottom"
+                            className="custom-node-btn-bottom show-hide"
                             onClick={() => {
                                 onCollapseButtonClick(node, !node.isCollapsed)
                                 setHovered(false)

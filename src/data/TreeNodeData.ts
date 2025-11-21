@@ -85,6 +85,12 @@ export abstract class TreeNodeData {
 		}
 	}
 
+	public removeChildren() {
+		for (let index = 0; index < this.children.length; index++) {
+			this.children.splice(index, 1);
+		}
+	}
+
 	public setCollapsed(collapsed: boolean) {
 		this.isCollapsed = collapsed;
 	}

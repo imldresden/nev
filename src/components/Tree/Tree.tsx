@@ -24,7 +24,8 @@ type TreeProps = {
   setFocusClicked: (node: TreeNodeData | null) => void;
   onAddAboveButtonClick: (ruleId: Rule, index: number) => void;
   onAddBelowButtonClick: (node: TableNodeData, ruleId: Rule) => void;
-  onRemoveButtonClick: (node: TreeNodeData) => void;
+  onRemoveAboveButtonClick: (node: TreeNodeData) => void;
+  onRemoveBelowButtonClick: (node: TreeNodeData) => void;
   onEdgeRemoveButtonClick: (source: TreeNodeData, target: TreeNodeData) => void;
   onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
   onNodeClicked: (node: TreeNodeData) => void;
@@ -33,6 +34,7 @@ type TreeProps = {
   giveFocusPreview: (node: TreeNodeData) => void;
   handleRemoveEdgePreview: (source: TreeNodeData) => void;
   giveRemoveAbovePreview: (node: TreeNodeData) => void;
+  giveRemoveBelowPreview: (node: TreeNodeData) => void;
   onFocusButtonClick: (node: TreeNodeData) => void;
   onFocusNode: (node: TreeNodeData, bool?: boolean) => void;
   onRowClicked: (row: TableEntryResponse, predicate: string) => void;
@@ -52,7 +54,8 @@ export default function Tree({
   setFocusClicked,
   onAddAboveButtonClick,
   onAddBelowButtonClick,
-  onRemoveButtonClick,
+  onRemoveAboveButtonClick,
+  onRemoveBelowButtonClick,
   onEdgeRemoveButtonClick,
   onCollapseButtonClick,
   onNodeClicked,
@@ -60,6 +63,7 @@ export default function Tree({
   giveFocusPreview,
   onMouseLeftButton,
   giveRemoveAbovePreview,
+  giveRemoveBelowPreview,
   onFocusButtonClick,
   onFocusNode,
   onRowClicked,
@@ -230,11 +234,13 @@ useEffect(() => {
               focusClicked={focusClicked}
               onMouseLeftButton={onMouseLeftButton}
               setFocusClicked={setFocusClicked}
-              onRemoveButtonClick={onRemoveButtonClick}
+              onRemoveAboveButtonClick={onRemoveAboveButtonClick}
+              onRemoveBelowButtonClick={onRemoveBelowButtonClick}
               onAddAboveButtonClick={onAddAboveButtonClick}
               onAddBelowButtonClick={onAddBelowButtonClick}
               giveFocusPreview={giveFocusPreview}
               giveRemoveAbovePreview={giveRemoveAbovePreview}
+              giveRemoveBelowPreview={giveRemoveBelowPreview}
               onCollapseButtonClick={onCollapseButtonClick}
               onNodeClicked={onNodeClicked}
               onFocusButtonClick={onFocusButtonClick}
