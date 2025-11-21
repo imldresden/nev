@@ -32,7 +32,7 @@ function App() {
     });
 
     return () => bc.close();
-  }, []);
+  }, [id]);
 
   const sendMessage = (msg: { queryType: string, payload: TableEntriesForTreeNodesQuery | TreeForTableQuery }) => {
     const idmsg = { 

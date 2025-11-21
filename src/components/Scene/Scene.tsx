@@ -354,6 +354,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     });
   };
 
+  
   // Handle loading more entries for a table node
   const handleLoadMoreClicked = (node: TableNodeData, pagination: { start: number, count: number }) => {
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());

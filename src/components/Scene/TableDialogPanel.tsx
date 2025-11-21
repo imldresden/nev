@@ -2,14 +2,11 @@ import Drawer from '@mui/material/Drawer';
 import { FaExpand } from "react-icons/fa";
 import { Resizable } from "re-resizable";
 import '../../assets/Overlay.css'
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import { DataGrid } from '@mui/x-data-grid';
 import type { TableNodeData } from '../../data/TreeNodeData';
-import { Button, DialogActions, TextField, Tooltip } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { Tooltip } from '@mui/material';
+import { useMemo, useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { FaArrowLeft, FaArrowRight, FaMagnifyingGlass } from 'react-icons/fa6';
 import StringFormatter from '../../util/StringFormatter';
@@ -156,14 +153,10 @@ function SingleTablePanel({
     onMaximize: () => void;
     style?: React.CSSProperties;
 }>) {
-    const [loadMoreDialogOpen, setLoadMoreDialogOpen] = useState(false);
-    const [start, setStart] = useState(node.getPagination().start);
-    const [count, setCount] = useState(node.getPagination().count);
-
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(50);
+    
+    const [page] = useState(1);
+    const [pageSize] = useState(50);
     const entries = useMemo(() => node.getTableEntries(), [node, version]);
-    const pageCount = Math.ceil(entries.length / pageSize);
 
     const pagedRows = entries.slice((page - 1) * pageSize, page * pageSize).map((row) => {
         const rowObj: { id: string; [key: string]: string } = { id: `${row.entryId}` };
@@ -172,13 +165,6 @@ function SingleTablePanel({
         });
         return rowObj;
     });
-
-    useEffect(() => {
-        if (loadMoreDialogOpen) {
-            setStart(node.getPagination().start);
-            setCount(node.getPagination().count);
-        }
-    }, [loadMoreDialogOpen, node]);
 
     let columns: TableColumn[] = [];
     if (entries[0]) {
@@ -317,68 +303,7 @@ function SingleTablePanel({
                     hideFooterPagination={true}
                 />
             </div>
-            <PaginationBar
-                page={page}
-                pageCount={pageCount}
-                pageSize={pageSize}
-                entriesLength={entries.length}
-                onPageChange={setPage}
-                onPageSizeChange={setPageSize}
-            />
-            <div style={{ display: "flex", justifyContent: "center" }}>
-                {node.moreEntriesExist && (
-                    <Button
-                        variant="contained"
-                        onClick={() => setLoadMoreDialogOpen(true)}
-                    >
-                        Load More
-                    </Button>
-                )}
-                <Dialog open={loadMoreDialogOpen} onClose={() => setLoadMoreDialogOpen(false)}>
-                    <DialogTitle>Load More Entries</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="Start"
-                            type="number"
-                            value={start}
-                            onChange={e => setStart(Math.max(0, Number(e.target.value)))}
-                            fullWidth
-                            margin="dense"
-                        />
-                        <TextField
-                            label="Count"
-                            type="number"
-                            value={count}
-                            onChange={e => setCount(Math.max(0, Number(e.target.value)))}
-                            fullWidth
-                            margin="dense"
-                        />
-                    </DialogContent>
-                    {start > count && (
-                        <div style={{
-                            color: "red",
-                            fontSize: 12,
-                            marginTop: 4,
-                            marginLeft: 32
-                        }}>
-                            Count needs to be greater than Start!
-                        </div>
-                    )}
-                    <DialogActions>
-                        <Button onClick={() => setLoadMoreDialogOpen(false)}>Cancel</Button>
-                        <Button
-                            variant="contained"
-                            disabled={start < 0 || count < 0 || start > count}
-                            onClick={() => {
-                                setLoadMoreDialogOpen(false);
-                                onLoadMoreClicked(node, { start, count });
-                            }}
-                        >
-                            Load
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+            <PaginationBar node={node} load={onLoadMoreClicked}/>
         </div>
     )
 }

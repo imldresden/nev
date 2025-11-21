@@ -226,11 +226,6 @@ export class TableNodeData extends TreeNodeData {
 		this.pagination.count = count;
 	}
 
-	//increase the count for load more
-	public increaseCount(increase: number) {
-		this.pagination.count += increase;
-	}
-
 	public setTableEntries(json: TableEntries) {
 		this.tableEntries.length = 0; // Clear existing entries
 		this.entries = json.entries

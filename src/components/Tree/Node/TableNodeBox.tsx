@@ -1,12 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import '../../../assets/NodeBox.css'
 import '../../../assets/NodeDetails.css'
 import type { TableNodeData, TreeNodeData } from '../../../data/TreeNodeData'
-import { TiPin } from 'react-icons/ti'
 import Tooltip from '@mui/material/Tooltip';
 import { IconButton } from '@mui/material'
 import StringFormatter from '../../../util/StringFormatter'
-import { FaChevronLeft, FaChevronRight, FaMagnifyingGlass } from 'react-icons/fa6'
+import { FaMagnifyingGlass, FaTable } from 'react-icons/fa6'
 import { HIGHLIGHTING_COLORS } from '../../../types/constants'
 import type { TableEntryResponse } from '../../../types/types'
 
@@ -65,14 +64,7 @@ function TableNodeHeader({
 function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonly<TableNodeDetailsProps>) {
   // const [activeTab, setActiveTab] = useState<"table" | "details">("table");
   const scrollDivRef = useRef<HTMLDivElement>(null);
-
-  const [page, setPage] = useState(1);
-  const pageSize = 50;
-
   const entries = node.getTableEntries();
-  const pageCount = Math.max(1, Math.ceil(entries.length / pageSize));
-  const pagedEntries = entries.slice((page - 1) * pageSize, page * pageSize);
-
   const columns = entries[0]
     ? [
       ...entries[0].termTuple.map((_, idx) => ({
@@ -115,10 +107,6 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
     div.addEventListener("wheel", handler, { passive: false });
     return () => div.removeEventListener("wheel", handler);
   }, [/*activeTab*/]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [entries.length]);
 
   return (
     <div className="table-node-details">
@@ -171,7 +159,7 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
                   </tr>
                 </thead>
                 <tbody>
-                  {pagedEntries.map((row, idx) => {
+                  {entries.map((row, idx) => {
                     const rowKey = row.termTuple.join?.('|') || idx;
                     return (
                       <tr
@@ -203,42 +191,24 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
             </div>
             <div
               style={{
-                display: "grid",
+                display: "block",
                 gridTemplateColumns: "1fr auto 1fr",
-                alignItems: "center",
                 marginTop: 4
               }}
             >
-              <span style={{ color: "#555", fontSize: "0.7em", padding: "4px 8px", justifySelf: "start" }}>
-                {entries.length} facts {node.moreEntriesExist ? '(more exist)' : ''}
-              </span>
-              <div style={{ display: "flex", gap: 8, justifySelf: "center" }}>
-                <Tooltip title="Previous page" placement="bottom" enterDelay={400}>
-                  <span>
-                    <IconButton
-                      size="small"
-                      disabled={page === 1}
-                      onClick={() => setPage(page - 1)}
-                      style={{ borderRadius: 4, padding: 2 }}
-                    >
-                      <FaChevronLeft />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title="Next page" placement="bottom" enterDelay={400}>
-                  <span>
-                    <IconButton
-                      size="small"
-                      disabled={page === pageCount}
-                      onClick={() => setPage(page + 1)}
-                      style={{ borderRadius: 4, padding: 2 }}
-                    >
-                      <FaChevronRight />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+              <div style={{ padding: "4px 8px", color: "#555", fontSize: "0.7em", float: "left"}}>
+                Facts {
+                  node.getPagination().start + 1
+                } to {
+                  node.getPagination().start + entries.length
+                } &nbsp;
+                {node.moreEntriesExist ? 
+                  <Tooltip title="Open full table in new window!" placement="right" enterDelay={500}>
+                    <a onClick={() => onPopOutClicked(node)}>(see more...)</a> 
+                  </Tooltip> : ''} 
               </div>
-              <div style={{ justifySelf: "end" }}>
+               
+              <div style={{ float: "right", paddingRight: "5px" }}>
                 <Tooltip title="Open full table in new window!" placement="right" enterDelay={500}>
                   <IconButton
                     size="small"
@@ -247,7 +217,7 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
                       borderRadius: 4,
                       padding: 2,
                     }}>
-                    <TiPin />
+                    <FaTable />
                   </IconButton>
                 </Tooltip>
               </div>
