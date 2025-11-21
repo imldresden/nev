@@ -40,7 +40,7 @@ function App() {
       queryType: msg.queryType, 
       payload: msg.payload, 
     };
-    console.log("Sent:", idmsg);
+    console.log(`Sent ${msg.queryType === "treeForTable" ? 'Type 1' : 'Type 2' }: `, idmsg);
     bcRef.current?.postMessage(idmsg);
     setBackdropOpen(true);
   };

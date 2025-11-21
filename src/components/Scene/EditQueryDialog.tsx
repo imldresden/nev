@@ -39,11 +39,9 @@ const EditQueryDialog: React.FC<EditQueryDialogProps> = ({
         <Dialog
             open={open}
             onClose={onClose}
-            PaperProps={{
-                style: {
-                    minWidth: "420px",
-                    maxWidth: "90vw"
-                }
+            sx={{
+                minWidth: "420px",
+                maxWidth: "90vw"
             }}
         >
             <DialogTitle>Edit Predicate & Query</DialogTitle>

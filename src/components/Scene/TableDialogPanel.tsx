@@ -50,17 +50,15 @@ export default function TableDialogPanel({
             anchor="bottom"
             open={open}
             onClose={onClose}
-            PaperProps={{
-                sx: {
-                    width: '98%',
-                    margin: '0 auto',
-                    borderTopLeftRadius: 12,
-                    borderTopRightRadius: 12,
-                    p: 2,
-                    zIndex: 5,
-                    overflowY: 'auto',
-                    transition: "height 0.2s"
-                }
+            sx={{
+                width: '98%',
+                margin: '0 auto',
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                p: 2,
+                zIndex: 5,
+                overflowY: 'auto',
+                transition: "height 0.2s"
             }}
             transitionDuration={300}
             variant="persistent"
@@ -363,7 +361,7 @@ function SingleTablePanel({
                             marginTop: 4,
                             marginLeft: 32
                         }}>
-                            Count needs to be greater then Start!
+                            Count needs to be greater than Start!
                         </div>
                     )}
                     <DialogActions>

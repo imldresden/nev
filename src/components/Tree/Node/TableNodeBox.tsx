@@ -209,29 +209,33 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
                 marginTop: 4
               }}
             >
-              <span style={{ color: "#555", fontSize: "0.95em", padding: "4px 8px", justifySelf: "start" }}>
-                Facts loaded: {entries.length}
+              <span style={{ color: "#555", fontSize: "0.7em", padding: "4px 8px", justifySelf: "start" }}>
+                {entries.length} facts {node.moreEntriesExist ? '(more exist)' : ''}
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, justifySelf: "center" }}>
+              <div style={{ display: "flex", gap: 8, justifySelf: "center" }}>
                 <Tooltip title="Previous page" placement="bottom" enterDelay={400}>
-                  <IconButton
-                    size="small"
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                    style={{ borderRadius: 4, padding: 2 }}
-                  >
-                    <FaChevronLeft />
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      size="small"
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                      style={{ borderRadius: 4, padding: 2 }}
+                    >
+                      <FaChevronLeft />
+                    </IconButton>
+                  </span>
                 </Tooltip>
                 <Tooltip title="Next page" placement="bottom" enterDelay={400}>
-                  <IconButton
-                    size="small"
-                    disabled={page === pageCount}
-                    onClick={() => setPage(page + 1)}
-                    style={{ borderRadius: 4, padding: 2 }}
-                  >
-                    <FaChevronRight />
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      size="small"
+                      disabled={page === pageCount}
+                      onClick={() => setPage(page + 1)}
+                      style={{ borderRadius: 4, padding: 2 }}
+                    >
+                      <FaChevronRight />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </div>
               <div style={{ justifySelf: "end" }}>
