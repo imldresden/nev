@@ -367,6 +367,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     if (undoResult) {
       undoResult.isRootNode = true;
       setRootNode(undoResult);
+      undoResult.update();
       //setPanToNodeId({ node: undoResult }) 
       setTreeVersion(v => v + 1);
     }
@@ -378,6 +379,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     if (redoResult) {
       redoResult.isRootNode = true;
       setRootNode(redoResult);
+      redoResult.update();
       //setPanToNodeId({ node: redoResult })
       setTreeVersion(v => v + 1);
     }

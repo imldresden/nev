@@ -119,6 +119,7 @@ export class DataManager {
         if (json.length === 0) {
             rootNode.clearTableEntriesInSubTree();
         }
+        rootNode.update();
     }
 
     public addRuleForTableEntriesForTreeNodesQuery(rootNode: TableNodeData, node: TableNodeData, ruleId: Rule, index: number): TableNodeData | null {
