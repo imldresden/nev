@@ -26,7 +26,6 @@ type TreeProps = {
   onAddBelowButtonClick: (node: TableNodeData, ruleId: Rule) => void;
   onRemoveAboveButtonClick: (node: TreeNodeData) => void;
   onRemoveBelowButtonClick: (node: TreeNodeData) => void;
-  onEdgeRemoveButtonClick: (source: TreeNodeData, target: TreeNodeData) => void;
   onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
   onNodeClicked: (node: TreeNodeData) => void;
   onMouseLeftButton: () => void;
@@ -56,10 +55,8 @@ export default function Tree({
   onAddBelowButtonClick,
   onRemoveAboveButtonClick,
   onRemoveBelowButtonClick,
-  onEdgeRemoveButtonClick,
   onCollapseButtonClick,
   onNodeClicked,
-  handleRemoveEdgePreview,
   giveFocusPreview,
   onMouseLeftButton,
   giveRemoveAbovePreview,
@@ -213,16 +210,7 @@ useEffect(() => {
         <g transform={transform.toString()}>
           {links
             .map((link: FlextreeLink, i: number) => (
-              <CustomLink 
-                key={i} 
-                mode={mode} 
-                source={link.source} 
-                handleRemoveEdgePreview={handleRemoveEdgePreview} 
-                onMouseLeftButton={onMouseLeftButton} 
-                target={link.target} 
-                onEdgeRemoveButtonClick={onEdgeRemoveButtonClick} 
-                markerId="arrow" 
-              />
+              <CustomLink key={i} source={link.source} target={link.target} />
             ))}
 
           {nodes.map((node: PositionedTableNodeData, i: number) => (

@@ -73,22 +73,8 @@ export abstract class TreeNodeData {
 		this.children.push(child);
 	}
 
-	public removeChild(toDelete: TreeNodeData) {
-		for (const child of this.children) {
-			if (child === toDelete) {
-				const index = this.children.indexOf(child);
-				if (index > -1) {
-					this.children.splice(index, 1);
-				}
-				return;
-			}
-		}
-	}
-
 	public removeChildren() {
-		for (let index = 0; index < this.children.length; index++) {
-			this.children.splice(index, 1);
-		}
+		this.children.length = 0;
 	}
 
 	public setCollapsed(collapsed: boolean) {

@@ -236,15 +236,6 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     setPanToNodeId({ node: node });
   };
 
-  // Handle removing an edge 
-  const handleRemoveButtonClick = (source: TreeNodeData, target: TreeNodeData) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
-    dataManager.removeNode(source, target);
-    dataManager.updateTreeDataStructure(rootNode)
-    sendType2Message(rootNode);
-  };
-
-
   const handleRemoveBelowButtonClick = (node: TreeNodeData) => {
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
     dataManager.removeBelow(node);
@@ -631,7 +622,6 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         onRemoveBelowButtonClick={handleRemoveBelowButtonClick}
         onAddAboveButtonClick={handleAddRuleAboveButtonClick}
         onAddBelowButtonClick={handleAddRuleBelowButtonClick}
-        onEdgeRemoveButtonClick={handleRemoveButtonClick}
         onCollapseButtonClick={handleCollapseButtonClick}
         onMouseLeftButton={() => handleResetEffect("isGreyed")}
         giveFocusPreview={handleFocusPreview}

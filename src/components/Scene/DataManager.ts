@@ -237,11 +237,6 @@ export class DataManager {
         return parent as TableNodeData;
     }
 
-    //to delete an edge
-    public removeNode(source: TreeNodeData, target: TreeNodeData) {
-        source.removeChild(target);
-    }
-
     // remove below
     public removeBelow(node: TreeNodeData) {
         node.removeChildren();
@@ -306,9 +301,7 @@ export class DataManager {
     public focusOnRuleNode(rootNode: TableNodeData, node: RuleNodeData) {
         //remove all children of the rules children
         for (const child of node.getChildren()) {
-            for (const grandChild of child.getChildren()) {
-                child.removeChild(grandChild);
-            }
+            child.removeChildren();
         }
 
         const parent = this.findeParentOfNode(rootNode, node);
