@@ -25,7 +25,6 @@ type TreeProps = {
   onAddBelowButtonClick: (node: TableNodeData, ruleId: Rule) => void;
   onRemoveAboveButtonClick: (node: TreeNodeData) => void;
   onRemoveBelowButtonClick: (node: TreeNodeData) => void;
-  onEdgeRemoveButtonClick: (source: TreeNodeData, target: TreeNodeData) => void;
   onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
   onNodeClicked: (node: TreeNodeData) => void;
   onMouseLeftButton: () => void;
@@ -210,11 +209,7 @@ useEffect(() => {
         <g transform={transform.toString()}>
           {links
             .map((link: FlextreeLink, i: number) => (
-              <CustomLink 
-                key={i}
-                source={link.source} 
-                target={link.target} 
-              />
+              <CustomLink key={i} source={link.source} target={link.target} />
             ))}
 
           {nodes.map((node: PositionedTableNodeData, i: number) => (
