@@ -116,12 +116,12 @@ export type TreeForTableQuery = {
 export type InnerTableQueryChildInformation = {
   rule: RuleId; 
   headIndex: number;
-  children: InnerTableQuery[];
+  children: TableEntriesForTreeNodesQuery[];
 };
 
 export type InnerTableQuery = {
-  tableEntries?: {
-    queries?: TableEntryQuery[];
+  tableEntries: {
+    queries: TableEntryQuery[];
     pagination?: {
       start: number;
       count: number;

@@ -9,7 +9,6 @@ import { TOP_PADDING } from '../../types/constants'
 import type { Rule, TableEntryResponse } from '../../types/types'
 import { StringFormatter } from '../../util/StringFormatter'
 
-// Neuer Typ für flexibles Panning
 type PanToNode = { node: TreeNodeData, center?: boolean } | null;
 
 type TreeProps = {
@@ -56,10 +55,8 @@ export default function Tree({
   onAddBelowButtonClick,
   onRemoveAboveButtonClick,
   onRemoveBelowButtonClick,
-  onEdgeRemoveButtonClick,
   onCollapseButtonClick,
   onNodeClicked,
-  handleRemoveEdgePreview,
   giveFocusPreview,
   onMouseLeftButton,
   giveRemoveAbovePreview,
@@ -214,14 +211,9 @@ useEffect(() => {
           {links
             .map((link: FlextreeLink, i: number) => (
               <CustomLink 
-                key={i} 
-                mode={mode} 
+                key={i}
                 source={link.source} 
-                handleRemoveEdgePreview={handleRemoveEdgePreview} 
-                onMouseLeftButton={onMouseLeftButton} 
                 target={link.target} 
-                onEdgeRemoveButtonClick={onEdgeRemoveButtonClick} 
-                markerId="arrow" 
               />
             ))}
 

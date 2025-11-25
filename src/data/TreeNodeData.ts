@@ -1,6 +1,5 @@
 import { measureTextWidth } from "../util/measureTextWidth";
 import type { 
-	InnerTableQuery,
 	InnerTableQueryChildInformation,
 	Rule,
 	TableEntries,
@@ -99,7 +98,7 @@ export abstract class TreeNodeData {
 		return this.children;
 	}
 
-	public abstract toTableEntriesForTreeNodesQueryJSON(mode: boolean): unknown
+	public abstract toTableEntriesForTreeNodesQueryJSON(queries: string[]): unknown
 
 	public abstract toUndoRedoState(): unknown
 
@@ -152,21 +151,20 @@ export class TableNodeData extends TreeNodeData {
 	}
 
 	//create Type 2 Query
-	public toTableEntriesForTreeNodesQueryJSON(createEmptyQuery: boolean, isUnrestricted: boolean = false, queries: string[] = []): TableEntriesForTreeNodesQuery {
+	public toTableEntriesForTreeNodesQueryJSON(queries: string[] = []): TableEntriesForTreeNodesQuery {
 		const children = this.getChildren() as TreeNodeData[] | undefined;
-		const base: TableEntriesForTreeNodesQuery = { predicate: "" };
-		base.tableEntries = { 
-			queries: [],
-			pagination: { start: this.pagination.start, count: this.pagination.count }
-		}; 
-
+		const base: TableEntriesForTreeNodesQuery = { 
+			predicate: this.name,
+			tableEntries: { 
+				queries,
+				pagination: { start: this.pagination.start, count: this.pagination.count }
+			}
+		};
+		
 		if (children && children.length > 0) {
-			base.childInformation = children[0].toTableEntriesForTreeNodesQueryJSON(createEmptyQuery) as InnerTableQueryChildInformation;
+			base.childInformation = children[0].toTableEntriesForTreeNodesQueryJSON([]) as InnerTableQueryChildInformation;
 		}
-		if (isUnrestricted) {
-			base.predicate = this.name;
-			base.tableEntries.queries = createEmptyQuery ? [] : queries;
-		}
+
 		return base;
 	}
 
@@ -300,13 +298,13 @@ export class RuleNodeData extends TreeNodeData {
 		return this.ruleId.stringRepresentation;
 	}
 
-	public toTableEntriesForTreeNodesQueryJSON(createEmptyQuery: boolean): InnerTableQueryChildInformation {
+	public toTableEntriesForTreeNodesQueryJSON(queries: string[] = []): InnerTableQueryChildInformation {
 		return {
 			rule: this.ruleId.id,
 			headIndex: this.ruleId.relevantHeadPredicateIndex,
 			children: this.getChildren()
 				? this.getChildren().map((child: TreeNodeData) =>
-					child.toTableEntriesForTreeNodesQueryJSON(createEmptyQuery) as InnerTableQuery
+					child.toTableEntriesForTreeNodesQueryJSON(queries) as TableEntriesForTreeNodesQuery
 				)
 				: []
 		};

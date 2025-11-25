@@ -208,9 +208,9 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   }
 
   // Send a type 2 query
-  const sendType2Message = (node: TableNodeData, isRestricted = true) => {
+  const sendType2Message = (node: TableNodeData) => {
     queries.length = 0;
-    sendMessage(dataManager.createType2Query(node.toTableEntriesForTreeNodesQueryJSON(isRestricted, true, queries)));
+    sendMessage(dataManager.createType2Query(node.toTableEntriesForTreeNodesQueryJSON(queries)));
     setTreeVersion(v => v + 1);
   }
 
@@ -259,7 +259,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     if (newRoot !== null) {
       dataManager.updateTreeDataStructure(newRoot)
       setRootNode(newRoot);
-      sendType2Message(newRoot, true);
+      sendType2Message(newRoot);
     }
   };
   
@@ -267,8 +267,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
     dataManager.addRuleAtLeaf(node, id)
     dataManager.updateTreeDataStructure(rootNode)
-    //sendType2Message(rootNode, false);
-    sendType2Message(rootNode, true)
+    sendType2Message(rootNode);
   };
 
   // Handle focusing on a rule node
@@ -401,7 +400,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     }
     setQueries(pqueries);
     dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
-    sendMessage(dataManager.createType2Query(rootNode.toTableEntriesForTreeNodesQueryJSON(pqueries.length === 0, true, pqueries)));
+    sendMessage(dataManager.createType2Query(rootNode.toTableEntriesForTreeNodesQueryJSON(pqueries)));
     setTreeVersion(v => v + 1); //since sendType2 would not have the new restriction value
   }
 
