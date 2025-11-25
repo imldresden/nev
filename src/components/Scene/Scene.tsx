@@ -364,7 +364,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle undo action
   const handleUndo = () => {
-    const undoResult = dataManager.undo(rootNode, structuredClone(queries));
+    const undoResult = dataManager.undo(rootNode, queries);
     if (undoResult) {
       undoResult.isRootNode = true;
       setRootNode(undoResult);
@@ -377,7 +377,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle redo action
   const handleRedo = () => {
-    const redoResult = dataManager.redo(rootNode, structuredClone(queries));
+    const redoResult = dataManager.redo(rootNode, queries);
     if (redoResult) {
       redoResult.isRootNode = true;
       setRootNode(redoResult);
