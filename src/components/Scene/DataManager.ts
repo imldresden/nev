@@ -77,7 +77,7 @@ export class DataManager {
     public loadUndoEntry(json: UndoRedoState, ruleParameters: string[] = [], ownId: number[] = []): TableNodeData {
         let parameters = ruleParameters;
         if (ruleParameters.length === 0 && json.childInformation) parameters = json.childInformation.rule.relevantHeadPredicate.parameters!
-        const tableNode = new TableNodeData(json, parameters, ownId);
+        const tableNode = new TableNodeData(json, parameters, ownId, json.queries);
         if (json.isCollapsed !== undefined) tableNode.isCollapsed = json.isCollapsed
         if (json.isGreyed !== undefined) tableNode.isGreyed = false; // json.isGreyed
         if (json.searchedEntry !== undefined) this.searchedEntry = json.searchedEntry; //set the searched entry, if it exists
@@ -329,29 +329,28 @@ export class DataManager {
     }
 
     //undo to the last tree state
-    public undo(rootNode: TableNodeData) {
+    public undo(rootNode: TableNodeData, queries: string[]) {
         if (this.undoList.length === 0) {
             console.error("No more undos available.");
             return null;
         }
         const undo = this.undoList.pop(); //remove the last element from the undoList
         if (undo !== undefined) {
-            this.redoList.push(rootNode.toUndoRedoState()); //add the last element to the redoList
+            this.redoList.push(rootNode.toUndoRedoState(queries)); //add the last element to the redoList
             rootNode = this.loadUndoEntry(undo);
             return rootNode;
         }
-
     }
 
     //redo to the last tree state
-    public redo(rootNode: TableNodeData) {
+    public redo(rootNode: TableNodeData, queries: string[]) {
         if (this.redoList.length === 0) {
             console.error("No more redos available.");
             return null;
         }
         const redo = this.redoList.pop();
         if (redo !== undefined) {
-            this.undoList.push(rootNode.toUndoRedoState());
+            this.undoList.push(rootNode.toUndoRedoState(queries));
             rootNode = this.loadUndoEntry(redo);
             return rootNode;
         }

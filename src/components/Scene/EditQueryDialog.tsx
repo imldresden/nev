@@ -105,7 +105,7 @@ const EditQueryDialog: React.FC<EditQueryDialogProps> = ({
                             variant="contained"
                             color="primary"
                             size="small"
-                            onClick={() => { onApply(localQuery); onClose() }}
+                            onClick={() => { onApply(structuredClone(localQuery)); onClose() }}
                             style={{ padding: "6px 12px" }}
                         >
                             Apply

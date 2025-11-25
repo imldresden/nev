@@ -108,29 +108,25 @@ export abstract class TreeNodeData {
 
 export class TableNodeData extends TreeNodeData {
 	private entries: TableEntryResponse[] = [];
-
 	private readonly tableEntries: TableEntryResponse[] = [];
 	private rulesAbove: Rule[] = [];
 	private rulesBelow: Rule[] = [];
+	private readonly pagination: { start: number; count: number } = { start: -1, count: -1 };
+	
 	public moreEntriesExist: boolean;
 	public gotSearched?:boolean = false;
-
 	public parameterPredicate: string[] = [];
-
 	public isHighlighted: number = -1;
 	public isOutdated: boolean = false;
-
-	private readonly pagination: { start: number; count: number } = { start: -1, count: -1 };
-
 	public isRootNode = false;
 	public isLeafNode = false;
+	public queries: string[] = [];
 
-	constructor(json: TreeForTableResponse, parameterPredicate: string[], id: number[]) {
+	constructor(json: TreeForTableResponse, parameterPredicate: string[], id: number[], queries: string[] = []) {
 		super(json.predicate, parameterPredicate);
-
-		this.id = id
-
+		this.id = id;
 		this.parameterPredicate = parameterPredicate === undefined ? [] : parameterPredicate;
+		this.queries = queries;
 
 		this.pagination.start = json.tableEntries?.pagination.start ?? -1;
 		const count = json.tableEntries?.entries.length ?? -1;
@@ -169,9 +165,10 @@ export class TableNodeData extends TreeNodeData {
 	}
 
 	//to save the current state of the table node
-	public toUndoRedoState(): TreeForTableResponse {
+	public toUndoRedoState(queries: string[] = []): TreeForTableResponse {
 		const children = this.getChildren() as TreeNodeData[] | undefined;
 		const base: TreeForTableResponse = {
+			queries: queries,
 			predicate: this.name,
 			tableEntries: {
 				entries: this.entries.map((entry) => ({

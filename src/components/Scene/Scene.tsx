@@ -77,7 +77,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     },
     "possibleRulesAbove": [],
     "possibleRulesBelow": [],
-  }, [""], [])); // Initialize with a default node
+  }, [""], [], queries)); // Initialize with a default node
 
   // State for mode
   const [mode, setMode] = useState<"explore" | "query">("query");
@@ -172,8 +172,9 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
       const tftr = message.payload as TreeForTableResponse;
       const node = dataManager.handleType1Response(tftr);
       node.isRootNode = true;
+      const qs = tftr.tableEntries.entries.map(e => e.termTuple.join(","));
       setRootNode(node);
-      setQueries(tftr.tableEntries.entries.map(e => e.termTuple.join(",")));
+      setQueries(qs);
       node.update()
     }
 
@@ -210,6 +211,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   // Send a type 2 query
   const sendType2Message = (node: TableNodeData) => {
     queries.length = 0;
+    setQueries(queries);
     sendMessage(dataManager.createType2Query(node.toTableEntriesForTreeNodesQueryJSON(queries)));
     setTreeVersion(v => v + 1);
   }
@@ -227,7 +229,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle removing a rule above a node
   const handleRemoveAboveButtonClick = (node: TreeNodeData) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     const newRoot = dataManager.removeRuleAbove(rootNode, node)!;
     dataManager.updateTreeDataStructure(newRoot)
     setRootNode(newRoot);
@@ -238,7 +240,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle removing an edge 
   const handleRemoveButtonClick = (source: TreeNodeData, target: TreeNodeData) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     dataManager.removeNode(source, target);
     dataManager.updateTreeDataStructure(rootNode)
     sendType2Message(rootNode);
@@ -246,7 +248,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
 
   const handleRemoveBelowButtonClick = (node: TreeNodeData) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     dataManager.removeBelow(node);
     dataManager.updateTreeDataStructure(rootNode)
     sendType2Message(rootNode);
@@ -254,7 +256,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle adding a rule to a node
   const handleAddRuleAboveButtonClick = (id: Rule, index: number) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     const newRoot = dataManager.addRuleAboveRoot(rootNode, id, index);
     if (newRoot !== null) {
       dataManager.updateTreeDataStructure(newRoot)
@@ -264,7 +266,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   };
   
   const handleAddRuleBelowButtonClick = (node: TableNodeData, id: Rule) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     dataManager.addRuleAtLeaf(node, id)
     dataManager.updateTreeDataStructure(rootNode)
     sendType2Message(rootNode);
@@ -272,7 +274,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle focusing on a rule node
   const handleRuleFocusButtonClick = (node: TreeNodeData) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     if (node instanceof RuleNodeData) {
       const newRoot = dataManager.focusOnRuleNode(rootNode, node)!;
       if (newRoot instanceof TableNodeData) {
@@ -293,7 +295,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle focusing on a fact in a table
   const handleFocusOnRow = (row: TableEntryResponse, predicate: string) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     sendType1Message(row, predicate);
   };
 
@@ -364,18 +366,19 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   
   // Handle loading more entries for a table node
   const handleLoadMoreClicked = (node: TableNodeData, pagination: { start: number, count: number }) => {
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     dataManager.loadMoreEntries(node, pagination);
     sendType2Message(rootNode);
   }
 
   // Handle undo action
   const handleUndo = () => {
-    const undoResult = dataManager.undo(rootNode);
+    const undoResult = dataManager.undo(rootNode, structuredClone(queries));
     if (undoResult) {
       undoResult.isRootNode = true;
       setRootNode(undoResult);
       undoResult.update();
+      setQueries(undoResult.queries)
       //setPanToNodeId({ node: undoResult }) 
       setTreeVersion(v => v + 1);
     }
@@ -383,11 +386,12 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle redo action
   const handleRedo = () => {
-    const redoResult = dataManager.redo(rootNode);
+    const redoResult = dataManager.redo(rootNode, structuredClone(queries));
     if (redoResult) {
       redoResult.isRootNode = true;
       setRootNode(redoResult);
       redoResult.update();
+      setQueries(redoResult.queries)
       //setPanToNodeId({ node: redoResult })
       setTreeVersion(v => v + 1);
     }
@@ -395,11 +399,8 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle removing restriction from the tree
   const handleRestriction = (pqueries: string[]) => {
-    if (pqueries.length === 0) {
-      queries.length = 0;
-    }
+    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState(queries));
     setQueries(pqueries);
-    dataManager.pushNewElementToUndoList(rootNode.toUndoRedoState());
     sendMessage(dataManager.createType2Query(rootNode.toTableEntriesForTreeNodesQueryJSON(pqueries)));
     setTreeVersion(v => v + 1); //since sendType2 would not have the new restriction value
   }

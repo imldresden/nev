@@ -29,6 +29,7 @@ export type UndoRedoStateTable = {
   isGreyed?: boolean,
   //following should be moved to a "global UndoRedoState" in the future
   searchedEntry?: string; 
+  queries?: string[];
 };
 
 
@@ -98,6 +99,7 @@ export type TreeForTableResponseChildInformation = {
 
 export type TreeForTableResponse = TableResponseBase & {
   childInformation?: TreeForTableResponseChildInformation;
+  queries?: string[];
 };
 
 export type TreeForTableQuery = {
