@@ -430,7 +430,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
           color="primary"
           value={mode}
           exclusive
-          onChange={(_, v) => setMode(v)}
+          onChange={(_, v: "explore" | "query") => setMode(v)}
           aria-label="Platform"
         >
           <ToggleButton value="explore">Explore</ToggleButton>

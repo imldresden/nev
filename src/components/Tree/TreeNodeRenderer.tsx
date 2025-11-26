@@ -55,9 +55,9 @@ export default function TreeNodeRenderer({
   if (node.data instanceof TableNodeData) {
     return (
       <foreignObject
-        x={node.x}
+        x={node.x - node.data.width / 2}
         y={node.y}
-        // width={node.data.width}
+        width={node.data.width}
         height={node.data.height}
         style={{ overflow: 'visible' }}
       >
