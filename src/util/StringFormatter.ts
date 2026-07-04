@@ -63,6 +63,28 @@ export class StringFormatter {
       return `${truncatedName}(${args})`;
     });
   }
+
+  public breakRuleName(name: string): string {
+    if (name.length < 50) return name;
+
+    let result = "";
+    let depth = 0;
+
+    for (let index = 0; index < name.length; index++) {
+      const character = name[index];
+      result += character;
+
+      if (character === "(" || character === "[") depth++;
+      if (character === ")" || character === "]") depth--;
+
+      const pair = `${name[index - 1] ?? ""}${character}`;
+      if (pair === ":-" || pair === ":=" || (character === "," && depth === 0)) {
+        result += "\n\u2003";
+      }
+    }
+
+    return result;
+  }
 }
 
 export default StringFormatter.getInstance();

@@ -29,13 +29,15 @@ export abstract class TreeNodeData {
 
 	constructor(name: string, parameter: string[] = []) {
 		this.name = name;
-		this.initialWidth = (measureTextWidth(StringFormatter.formatRuleName(name, true)));
+		const formattedRuleName = StringFormatter.breakRuleName(StringFormatter.formatRuleName(name, true));
+		this.initialWidth = Math.max(...formattedRuleName.split("\n").map(measureTextWidth));
+		this.height = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
 		if (this instanceof TableNodeData) {
 			this.initialWidth = (measureTextWidth(StringFormatter.formatPredicate(name, true, parameter)));
+			this.height = NORMAL_HEIGHT;
 		}
 
 		this.width = this.initialWidth;
-		this.height = NORMAL_HEIGHT
 	}
 
 	public updateInitialWidth() {
@@ -44,7 +46,9 @@ export abstract class TreeNodeData {
         ? measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.getTableEntries()[0].termTuple))
         : measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.parameterPredicate));
 		} else {
-			this.initialWidth = measureTextWidth(StringFormatter.formatRuleName(this.name, true));
+			const formattedRuleName = StringFormatter.breakRuleName(StringFormatter.formatRuleName(this.name, true));
+			this.initialWidth = Math.max(...formattedRuleName.split("\n").map(measureTextWidth));
+			this.height = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
 		}
 		this.width = this.initialWidth;
 		if(this.isExpanded && this.initialWidth < EXTENDED_WIDTH){
