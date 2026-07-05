@@ -32,6 +32,13 @@
   border: 2px solid #4152b1;
 }
 
+.custom-node.selected-for-export > .table-node-box,
+.custom-node.selected-for-export > .rule-node-box {
+  outline: 3px dashed #1976d2;
+  outline-offset: 5px;
+  box-shadow: 0 0 0 8px rgba(25, 118, 210, 0.10);
+}
+
 /* Expandiert */
 .table-node-box--expanded {
   min-height: 120px;

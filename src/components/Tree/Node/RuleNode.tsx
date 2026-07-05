@@ -21,6 +21,7 @@ type NodeProps = {
   giveFocusPreview: (node: TreeNodeData) => void;
   codingButtonClicked: (node: RuleNodeData) => void;
   setHoveredNode: (node: TreeNodeData | null) => void;
+  isSelected: boolean;
 }
 
 export default function RuleNode({
@@ -36,14 +37,15 @@ export default function RuleNode({
   onFocusButtonClick,
   onFocusNode,
   isHovered,
-  setHoveredNode
+  setHoveredNode,
+  isSelected
 }: Readonly<NodeProps>) {
   const [hovered, setHovered] = useState(false);
   const [hoverMap] = useState<Timeouts>({});
 
   return (
     <div
-      className={`custom-node${isHovered ? ' hovered' : ''}`}
+      className={`custom-node${isHovered ? ' hovered' : ''}${isSelected ? ' selected-for-export' : ''}`}
       onMouseLeave={() => {
             const id = node.id.join('');
             hoverMap[id] = setTimeout(() => {

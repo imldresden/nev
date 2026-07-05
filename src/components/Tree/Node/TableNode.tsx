@@ -34,6 +34,7 @@ type NodeProps = {
     onPopOutClicked: (node: TableNodeData) => void;
     codingButtonClicked: (node: TableNodeData) => void;
     setHoveredNode: (node: TreeNodeData | null) => void;
+    isSelected: boolean;
 }
 
 export default function TableNode({
@@ -56,7 +57,8 @@ export default function TableNode({
     onFocusButtonClick,
     isHovered,
     setHoveredNode,
-    onPopOutClicked
+    onPopOutClicked,
+    isSelected
 }: Readonly<NodeProps>) {
     const [hovered, setHovered] = useState(false)
     const [activeDialog, setActiveDialog] = useState<"above" | "below" | "pos" | null>(null)    
@@ -73,7 +75,7 @@ export default function TableNode({
 
     return (
         <div
-            className={`custom-node${hovered ? ' hovered' : ''}`}
+            className={`custom-node${hovered ? ' hovered' : ''}${isSelected ? ' selected-for-export' : ''}`}
             onMouseLeave={() => {
                 const id = node.id.join('');
                 hoverMap[id] = setTimeout(() => {
