@@ -9,8 +9,11 @@ import type {
 	TreeForTableResponse,
 	TreeForTableResponseChildInformation
 } from "../types/types";
-import { EXTENDED_WIDTH, NORMAL_HEIGHT } from "../types/constants";
+import { EXTENDED_HEIGHT, EXTENDED_WIDTH, NORMAL_HEIGHT } from "../types/constants";
 import StringFormatter from "../util/StringFormatter";
+
+const PREMISE_HORIZONTAL_PADDING = 16;
+
 export abstract class TreeNodeData {
 	public name: string = "error";
 	private readonly children: TreeNodeData[] = [];
@@ -25,32 +28,42 @@ export abstract class TreeNodeData {
 	public width: number;
 	public initialWidth: number;
 	public height: number;
+	public initialHeight: number;
 
 
 	constructor(name: string, parameter: string[] = []) {
 		this.name = name;
 		const formattedRuleName = StringFormatter.breakRuleName(StringFormatter.formatRuleName(name, true));
 		this.initialWidth = Math.max(...formattedRuleName.split("\n").map(measureTextWidth));
-		this.height = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
+		this.initialHeight = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
 		if (this instanceof TableNodeData) {
-			this.initialWidth = (measureTextWidth(StringFormatter.formatPredicate(name, true, parameter)));
-			this.height = NORMAL_HEIGHT;
+			const formattedPredicate = StringFormatter.breakPredicateName(
+				StringFormatter.formatPredicate(name, true, parameter)
+			);
+			this.initialWidth = Math.max(...formattedPredicate.split("\n").map(measureTextWidth)) + PREMISE_HORIZONTAL_PADDING;
+			this.initialHeight = Math.max(NORMAL_HEIGHT, formattedPredicate.split("\n").length * 19 + 10);
 		}
 
 		this.width = this.initialWidth;
+		this.height = this.initialHeight;
 	}
 
 	public updateInitialWidth() {
 		if (this instanceof TableNodeData) {
-			this.initialWidth = this.isSingleEntryTable()
-        ? measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.getTableEntries()[0].termTuple))
-        : measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.parameterPredicate));
+			const formattedPredicate = StringFormatter.breakPredicateName(this.isSingleEntryTable()
+        ? StringFormatter.formatPredicate(this.name, true, this.getTableEntries()[0].termTuple)
+        : StringFormatter.formatPredicate(this.name, true, this.parameterPredicate));
+			this.initialWidth = Math.max(...formattedPredicate.split("\n").map(measureTextWidth)) + PREMISE_HORIZONTAL_PADDING;
+			this.initialHeight = Math.max(NORMAL_HEIGHT, formattedPredicate.split("\n").length * 19 + 10);
 		} else {
 			const formattedRuleName = StringFormatter.breakRuleName(StringFormatter.formatRuleName(this.name, true));
 			this.initialWidth = Math.max(...formattedRuleName.split("\n").map(measureTextWidth));
-			this.height = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
+			this.initialHeight = Math.max(NORMAL_HEIGHT, formattedRuleName.split("\n").length * 19 + 10);
 		}
 		this.width = this.initialWidth;
+		this.height = this.isExpanded
+			? EXTENDED_HEIGHT + this.initialHeight - NORMAL_HEIGHT
+			: this.initialHeight;
 		if(this.isExpanded && this.initialWidth < EXTENDED_WIDTH){
 			this.width = EXTENDED_WIDTH;
 		}
@@ -199,8 +212,13 @@ export class TableNodeData extends TreeNodeData {
 		this.setTableEntries(query.tableEntries);
 		this.setRulesAbove(query.possibleRulesAbove);
 		this.setRulesBelow(query.possibleRulesBelow);
-		this.initialWidth = (measureTextWidth(StringFormatter.formatPredicate(this.name, true, this.parameterPredicate)));
+		const formattedPredicate = StringFormatter.breakPredicateName(
+			StringFormatter.formatPredicate(this.name, true, this.parameterPredicate)
+		);
+		this.initialWidth = Math.max(...formattedPredicate.split("\n").map(measureTextWidth)) + PREMISE_HORIZONTAL_PADDING;
+		this.initialHeight = Math.max(NORMAL_HEIGHT, formattedPredicate.split("\n").length * 19 + 10);
 		this.width = (this.isExpanded && this.initialWidth < EXTENDED_WIDTH) ? EXTENDED_WIDTH : this.initialWidth;
+		this.height = this.isExpanded ? EXTENDED_HEIGHT + this.initialHeight - NORMAL_HEIGHT : this.initialHeight;
 	}
 
 	public clearTableEntriesInSubTree() {

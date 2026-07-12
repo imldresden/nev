@@ -4,6 +4,7 @@ export class StringFormatter {
   private static instance: StringFormatter;
   public static maxLength: number = Infinity;
   public static maxLengthSlider: number = -1;
+  public static breakPremiseNodes: boolean = true;
   private constructor() { }
 
   public static getInstance(): StringFormatter {
@@ -81,6 +82,42 @@ export class StringFormatter {
       if (pair === ":-" || pair === ":=" || (character === "," && depth === 0)) {
         result += "\n\u2003";
       }
+    }
+
+    return result;
+  }
+
+  public breakPredicateName(name: string): string {
+    if (!StringFormatter.breakPremiseNodes || name.length < 50) return name;
+
+    let result = "";
+    let depth = 0;
+    let quote: string | null = null;
+    let escaped = false;
+
+    for (const character of name) {
+      result += character;
+
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (character === "\\" && quote) {
+        escaped = true;
+        continue;
+      }
+      if (quote) {
+        if (character === quote) quote = null;
+        continue;
+      }
+      if (character === '"' || character === "'") {
+        quote = character;
+        continue;
+      }
+
+      if (character === "(" || character === "[") depth++;
+      if (character === ")" || character === "]") depth--;
+      if (character === "," && depth === 1) result += "\n\u2003";
     }
 
     return result;

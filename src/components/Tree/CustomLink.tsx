@@ -1,6 +1,5 @@
 import '../../assets/Link.css'
 import type { PositionedTableNodeData } from "../../data/TreeNodeData";
-import { EXTENDED_HEIGHT, NORMAL_HEIGHT } from "../../types/constants";
 
 type LinkProps = {
   source: PositionedTableNodeData;
@@ -10,7 +9,7 @@ type LinkProps = {
 export default function CustomLink({ source, target }: Readonly<LinkProps>) {
   const sourcePoint = [
     source.x,
-    source.y + (source.data.isExpanded ? EXTENDED_HEIGHT + 4 : NORMAL_HEIGHT * 3 - 9)
+    source.y + Math.max(source.data.height, 33) + 4
   ]
   
   const targetPoint = [

@@ -92,6 +92,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const [editQueryOpen, setEditQueryOpen] = useState(false);
   const [maxLength, setMaxLength] = useState(StringFormatter.maxLengthSlider);
   const [showNodeExecutionTimes, setShowNodeExecutionTimes] = useState(false);
+  const [breakPremiseNodes, setBreakPremiseNodes] = useState(StringFormatter.breakPremiseNodes);
   const [colorizationMode, setColorizationMode] = useState<LogicColorizationMode>(LOGIC_COLORIZATION_MODES.text);
   const [selectedNodes, setSelectedNodes] = useState<TreeNodeData[]>([]);
 
@@ -103,6 +104,13 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const handleMaxLengthChange = (value: number) => {
     setMaxLength(value);
     StringFormatter.maxLength = value;
+    rootNode.update();
+    setTreeVersion(v => v + 1);
+  };
+
+  const handlePremiseBreaklinesChange = (checked: boolean) => {
+    StringFormatter.breakPremiseNodes = checked;
+    setBreakPremiseNodes(checked);
     rootNode.update();
     setTreeVersion(v => v + 1);
   };
@@ -651,6 +659,26 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
             />
           </span>
         </Tooltip>
+
+        <Tooltip
+          title="Break long premise predicates across multiple lines."
+          placement="left"
+          enterDelay={500}
+        >
+          <FormControlLabel
+            sx={{ margin: 0, justifyContent: "space-between", fontSize: 14 }}
+            label="Premise breaklines"
+            labelPlacement="start"
+            control={
+              <Switch
+                size="small"
+                checked={breakPremiseNodes}
+                onChange={(_, checked) => handlePremiseBreaklinesChange(checked)}
+              />
+            }
+          />
+        </Tooltip>
+
         <Tooltip
           title="Toggle logic variable text colors."
           placement="left"

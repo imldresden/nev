@@ -309,10 +309,10 @@ export class DataManager {
     //increase size of the node, if expanded
     public changeNodeLayout(node: TreeNodeData, expanded: boolean) {
         if (expanded) {
-            node.height = EXTENDED_HEIGHT;
+            node.height = EXTENDED_HEIGHT + node.initialHeight - NORMAL_HEIGHT;
             node.width = Math.max(node.initialWidth, node.width, EXTENDED_WIDTH);
         } else {
-            node.height = NORMAL_HEIGHT;
+            node.height = node.initialHeight;
             node.width = Math.min(node.initialWidth, node.width);
         }
     }
