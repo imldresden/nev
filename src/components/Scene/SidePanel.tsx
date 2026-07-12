@@ -91,6 +91,7 @@ export default function SidePanel({
               paddingTop: 12,
               boxSizing: "border-box",
               overflowY: "auto",
+              overflowX: "auto",
               transition: "width 0.2s",
               fontFamily: "Roboto",
             }}
