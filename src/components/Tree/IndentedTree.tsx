@@ -1,4 +1,5 @@
 import { Tooltip } from '@mui/material'
+import { useState } from 'react'
 import { TableNodeData, type TreeNodeData } from '../../data/TreeNodeData'
 import ColoredLogicText from '../ColoredLogicText'
 import { formatNodeLabel } from './treeNodeLabel'
@@ -81,6 +82,7 @@ function IndentedTreeRow({
   hoveredNode: TreeNodeData | null
   setHoveredNode: (node: TreeNodeData | null) => void
 }>) {
+  const [tooltipOpen, setTooltipOpen] = useState(false)
   let color = '#217dbb'
   if (row.node instanceof TableNodeData) color = '#43a047'
 
@@ -108,49 +110,57 @@ function IndentedTreeRow({
     background = 'inherit';
   }
 
-  const content = (
+  const title = formatNodeLabel(row.node)
+
+  return (
   <div
-    onMouseOver={() => setHoveredNode(row.node)}
-    onMouseOut={() => setHoveredNode(null)}
+    onMouseEnter={() => {
+      setHoveredNode(row.node)
+      setTooltipOpen(true)
+    }}
+    onMouseLeave={() => {
+      setHoveredNode(null)
+      setTooltipOpen(false)
+    }}
     style={{
       cursor: 'pointer',
       background,
       color,
       whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      maxWidth: '100%',
+      width: 'max-content',
+      minWidth: '100%',
     }}
     onClick={e => {
       if (e.ctrlKey) {onNodeClicked(row.node, true)}
       onNodeClicked(row.node, false);
     }}
   >
-    <span
-      style={{
-        color: '#999',
-        display: 'inline-block',
-        width: rowNumberWidth,
-        marginRight: '6px',
-        textAlign: 'right',
-        fontVariantNumeric: 'tabular-nums',
-      }}
+    <Tooltip
+      title={title}
+      placement="right"
+      open={tooltipOpen}
+      enterDelay={500}
+      disableHoverListener
     >
-      {rowIndex}
-    </span>
-    {prefix}
-    {(caret ? caret : ' ') + ' '}
-    <ColoredLogicText
-      text={formatNodeLabel(row.node)}
-    />
-  </div>
-);
-
-  return (
-    <Tooltip title={
-      formatNodeLabel(row.node)
-    } placement="right" enterDelay={500}>
-      {content}
+      <span style={{ position: 'sticky', right: 0, float: 'right', width: 1, height: '1.2em' }} />
     </Tooltip>
+    <span style={{ display: 'inline-block' }}>
+      <span
+        style={{
+          color: '#999',
+          display: 'inline-block',
+          width: rowNumberWidth,
+          marginRight: '6px',
+          textAlign: 'right',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {rowIndex}
+      </span>
+      {prefix}
+      {(caret ? caret : ' ') + ' '}
+      <ColoredLogicText text={title} />
+    </span>
+  </div>
   );
 }

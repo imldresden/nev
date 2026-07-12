@@ -90,6 +90,8 @@ export default function SidePanel({
               boxShadow: "2px 0 8px rgba(0,0,0,0.07)",
               height: "100%",
               overflow: "hidden",
+              boxSizing: "border-box",
+              transition: "width 0.2s",
               fontFamily: "Roboto",
             }}
           >

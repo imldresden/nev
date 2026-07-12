@@ -40,6 +40,8 @@ type TreeProps = {
   hoveredNode?: TreeNodeData | null;
   setHoveredNode: (node: TreeNodeData | null) => void;
   onPopOutClicked: (node: TableNodeData) => void;
+  selectedNodes: TreeNodeData[];
+  onSelectionChange: (nodes: TreeNodeData[]) => void;
 };
 
 export default function Tree({
@@ -69,7 +71,9 @@ export default function Tree({
   hoveredNode,
   setHoveredNode,
   setPanToNodeId,
-  onPopOutClicked
+  onPopOutClicked,
+  selectedNodes,
+  onSelectionChange
 }: Readonly<TreeProps>) {
   type FlextreeLink = {
     source: PositionedTableNodeData, target: PositionedTableNodeData
@@ -171,6 +175,8 @@ export default function Tree({
 
   // Zoom/Pan
   const svgRef = useRef<SVGSVGElement>(null)
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [selectionBox, setSelectionBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
   // init Transform-Status
   const centerX = width / 2;
@@ -187,12 +193,61 @@ export default function Tree({
   svg.call(
     d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.2, 3])
-      .filter((event) => event.type !== "dblclick")
+      .filter((event) => event.type !== "dblclick" && !event.ctrlKey && !event.metaKey)
       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
         setTransform(event.transform)
       })
   );
 }, []);
+
+  const pointerPosition = (event: React.PointerEvent<SVGSVGElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+  };
+
+  const handleSelectionStart = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (event.button !== 0 || (!event.ctrlKey && !event.metaKey)) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const start = pointerPosition(event);
+    dragStartRef.current = start;
+    setSelectionBox({ ...start, width: 0, height: 0 });
+  };
+
+  const handleSelectionMove = (event: React.PointerEvent<SVGSVGElement>) => {
+    const start = dragStartRef.current;
+    if (!start) return;
+    const current = pointerPosition(event);
+    setSelectionBox({
+      x: Math.min(start.x, current.x),
+      y: Math.min(start.y, current.y),
+      width: Math.abs(current.x - start.x),
+      height: Math.abs(current.y - start.y),
+    });
+  };
+
+  const handleSelectionEnd = (event: React.PointerEvent<SVGSVGElement>) => {
+    const box = selectionBox;
+    dragStartRef.current = null;
+    setSelectionBox(null);
+    if (!box || (box.width < 3 && box.height < 3)) {
+      onSelectionChange([]);
+      return;
+    }
+
+    const selected = nodes
+      .filter(node => {
+        const [centerX, top] = transform.apply([node.x, node.y]);
+        const nodeWidth = Math.max(node.data.width, 60) * transform.k;
+        const nodeHeight = Math.max(node.data.height, 33) * transform.k;
+        const left = centerX - nodeWidth / 2;
+        return left < box.x + box.width && left + nodeWidth > box.x
+          && top < box.y + box.height && top + nodeHeight > box.y;
+      })
+      .map(node => node.data);
+    onSelectionChange(selected);
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
   const [lastCenteredRootId, setLastCenteredRootId] = useState<number[] | null>(null);
 
@@ -261,6 +316,10 @@ useEffect(() => {
         width={svgWidth}
         height={svgHeight}
         style={{ position: 'absolute', left: 0, top: 0, zIndex: 0 }}
+        onPointerDown={handleSelectionStart}
+        onPointerMove={handleSelectionMove}
+        onPointerUp={handleSelectionEnd}
+        onPointerCancel={handleSelectionEnd}
       >
         <defs>
           <marker
@@ -286,8 +345,8 @@ useEffect(() => {
             ))}
 
           {nodes.map((node: PositionedTableNodeData, i: number) => (
+            <g key={i}>
             <TreeNodeRenderer
-              key={i}
               node={node}
               mode={mode}
               showNodeExecutionTimes={showNodeExecutionTimes}
@@ -312,9 +371,21 @@ useEffect(() => {
               hoveredNode={hoveredNode}
               setHoveredNode={setHoveredNode}
               onPopOutClicked={onPopOutClicked}
+              isSelected={selectedNodes.includes(node.data)}
             />
+            </g>
           ))}
         </g>
+        {selectionBox && (
+          <rect
+            {...selectionBox}
+            fill="rgba(25, 118, 210, 0.12)"
+            stroke="#1976d2"
+            strokeWidth={1.5}
+            strokeDasharray="6 4"
+            pointerEvents="none"
+          />
+        )}
       </svg>
     </div>
   )
