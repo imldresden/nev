@@ -7,7 +7,7 @@ import './../../assets/index.css'
 import SidePanel from "./SidePanel";
 import TableDialog from "./TableDialog";
 import type { Rule, TableEntriesForTreeNodesQuery, TableEntriesForTreeNodesResponse, TableEntryResponse, TreeForTableQuery, TreeForTableResponse } from "../../types/types";
-import { FaRedo, FaUndo, FaPenSquare, FaLock, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaRedo, FaUndo, FaPenSquare, FaLock, FaArrowUp, FaArrowDown, FaDownload } from "react-icons/fa";
 import TableDialogPanel from "./TableDialogPanel";
 import { HIGHLIGHTING_COLORS } from "../../types/constants";
 import EditQueryDialog from "./EditQueryDialog";
@@ -93,6 +93,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const [maxLength, setMaxLength] = useState(StringFormatter.maxLengthSlider);
   const [showNodeExecutionTimes, setShowNodeExecutionTimes] = useState(false);
   const [colorizationMode, setColorizationMode] = useState<LogicColorizationMode>(LOGIC_COLORIZATION_MODES.text);
+  const [selectedNodes, setSelectedNodes] = useState<TreeNodeData[]>([]);
 
   useEffect(() => {
     setMaxLength(StringFormatter.maxLengthSlider);
@@ -182,6 +183,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
       setRootNode(node);
       setQueries(qs);
       node.update()
+      setSelectedNodes([]);
     }
 
     if (message.responseType === "tableEntriesForTreeNodes") {
@@ -303,6 +305,55 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const handleJumpToLeaf = () => {
     const leaf = findDeepestLeaf(rootNode);
     setPanToNodeId({ node: leaf, center: true });
+  };
+
+  const handleExport = () => {
+    const selectedAddresses = new Set(selectedNodes.map(node => node.id.join("/")));
+    const allTableNodes: TableNodeData[] = [];
+    const pending: TreeNodeData[] = [rootNode];
+    while (pending.length > 0) {
+      const node = pending.pop();
+      if (!node) continue;
+      if (node instanceof TableNodeData) allTableNodes.push(node);
+      pending.push(...node.getChildren());
+    }
+
+    const nodesToExport = selectedAddresses.size === 0
+      ? allTableNodes
+      : allTableNodes.filter(node => selectedAddresses.has(node.id.join("/")));
+    const exportData: TableEntriesForTreeNodesResponse = nodesToExport.map(node => ({
+      predicate: node.getName(),
+      addressInTree: [...node.id],
+      tableEntries: {
+        entries: node.getTableEntries().map(entry => ({
+          entryId: entry.entryId,
+          termTuple: [...entry.termTuple],
+        })),
+        pagination: {
+          start: node.getPagination().start,
+          moreEntriesExist: node.moreEntriesExist,
+        },
+      },
+      metaInformation: { executionTime: node.executionTime },
+      possibleRulesAbove: node.getRulesAbove(),
+      possibleRulesBelow: node.getRulesBelow(),
+    }));
+
+    if (exportData.length === 0) {
+      setSnackbarMsg({ msg: "The selection contains no table data to export.", sev: "error" });
+      setSnackbarOpen(true);
+      return;
+    }
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `nemo-tree-${selectedAddresses.size > 0 ? "selection" : "view"}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setSnackbarMsg({ msg: `Exported ${exportData.length} table node${exportData.length === 1 ? "" : "s"}.`, sev: "success" });
+    setSnackbarOpen(true);
   };
 
   // Handle clicking a node in the tree (isExpanded)
@@ -662,6 +713,27 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
             </Button>
           </Tooltip>
         </Box>
+        <Button
+            variant="outlined"
+            size="small"
+            fullWidth
+            startIcon={<FaDownload />}
+            onClick={handleExport}
+            sx={{
+              marginTop: 1,
+              color: "#555b63",
+              borderColor: "#686f78",
+              backgroundColor: "#fafafa",
+              fontWeight: 600,
+              '&:hover': {
+                color: "#383d43",
+                borderColor: "#464c54",
+                backgroundColor: "#eceef0",
+              },
+            }}
+          >
+            Export{selectedNodes.length > 0 ? ` selection (${selectedNodes.length})` : " tree"}
+        </Button>
       </div>
 
       {/* Snackbar for notifications */}
@@ -737,6 +809,8 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         setPanToNodeId={setPanToNodeId}
         setFocusClicked={setFocusClicked}
         focusClicked={focusClicked}
+        selectedNodes={selectedNodes}
+        onSelectionChange={setSelectedNodes}
       />
 
       {/* Side panel with indented tree */}

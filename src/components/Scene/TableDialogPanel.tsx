@@ -40,7 +40,7 @@ export default function TableDialogPanel({
     version,
     onMaximizeTable
 }: Readonly<TableDialogPanelProps>) {
-    const [_, setPanelHeight] = useState(0);
+    const [panelHeight, setPanelHeight] = useState(320);
     
     if (!nodes || nodes.length === 0) return null;
     return (
@@ -49,21 +49,20 @@ export default function TableDialogPanel({
             open={open}
             onClose={onClose}
             sx={{
-                width: '98%',
-                margin: '0 auto',
-                borderTopLeftRadius: 12,
-                borderTopRightRadius: 12,
-                p: 2,
                 zIndex: 5,
-                overflowY: 'auto',
-                transition: "height 0.2s",
-                padding: 0
+                '& .MuiDrawer-paper': {
+                    width: '98%',
+                    margin: '0 auto',
+                    borderTopLeftRadius: 12,
+                    borderTopRightRadius: 12,
+                    overflow: 'visible'
+                }
             }}
             transitionDuration={300}
             variant="persistent"
         >
             <Resizable
-                size={{ width: "100%" }}
+                size={{ width: "100%", height: panelHeight }}
                 minHeight={150}
                 maxHeight={window.innerHeight - 100}
                 enable={{ top: true }}
@@ -72,11 +71,10 @@ export default function TableDialogPanel({
                 }}
                 handleStyles={{
                     top: {
-                        height: "12px",
-                        top: -16,
+                        height: "10px",
+                        top: -5,
                         left: 0,
                         right: 0,
-                        borderRadius: "8px 8px 0 0",
                         zIndex: 2001,
                         cursor: "ns-resize"
                     }
@@ -85,7 +83,7 @@ export default function TableDialogPanel({
                     width: "100%",
                     margin: "0 auto",
                     position: "relative",
-                    transition: "height 0.2s"
+                    boxSizing: "border-box"
                 }}
             >
                 <div
@@ -94,12 +92,14 @@ export default function TableDialogPanel({
                         margin: "0 auto",
                         display: "flex",
                         gap: 24,
-                        alignItems: "flex-start",
-                        overflowX: "auto"
+                        alignItems: "stretch",
+                        overflowX: "auto",
+                        height: "100%",
+                        boxSizing: "border-box"
                     }}
                 >
                     {nodes.map((node: TableNodeData, idx: number) => {
-                        const style: React.CSSProperties = { minWidth: 420, minHeight: 0 };
+                        const style: React.CSSProperties = { minWidth: 420, minHeight: 0, height: "calc(100% - 16px)" };
                         if (nodes.length === 1) {
                             style.flex = "1 1 100%";
                             style.maxWidth = "100%";
@@ -254,6 +254,7 @@ function SingleTablePanel({
                 margin: "8px",
                 display: "flex",
                 flexDirection: "column",
+                boxSizing: "border-box",
                 position: "relative",
                 outline: outlineColor ? `3px solid ${outlineColor}` : undefined,
                 outlineOffset: outlineColor ? 2 : undefined,
@@ -312,7 +313,7 @@ function SingleTablePanel({
                     {node.isOutdated && <span style={{ color: "#d32f2f", marginLeft: 8 }}>(outdated)</span>}
                 </span>
             </Tooltip>
-            <div style={{ flex: "1 1 auto", maxHeight: 200, overflowY: "auto", marginBottom: 0 }}>
+            <div style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", marginBottom: 0 }}>
                 <DataGrid
                     rows={pagedRows}
                     columns={columns}

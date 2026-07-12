@@ -32,6 +32,7 @@ type TreeNodeRendererProps = {
   onPopOutClicked: (node: TableNodeData) => void;
   codingButtonClicked: (node:TreeNodeData) => void;
   visualOnly?: boolean;
+  isSelected: boolean;
 };
 
 export default function TreeNodeRenderer({
@@ -60,15 +61,19 @@ export default function TreeNodeRenderer({
   setHoveredNode,
   onPopOutClicked,
   visualOnly = false,
+  isSelected
 }: Readonly<TreeNodeRendererProps>) {
+
+  const renderedWidth = Math.max(node.data.width, 60);
+  const renderedHeight = Math.max(node.data.height, 33);
 
   if (node.data instanceof TableNodeData) {
     return (
       <foreignObject
-        x={node.x - node.data.width / 2}
+        x={node.x - renderedWidth / 2}
         y={node.y}
-        width={node.data.width}
-        height={node.data.height}
+        width={renderedWidth}
+        height={renderedHeight}
         style={{ overflow: 'visible' }}
       >
         {visualOnly ? (
@@ -105,6 +110,7 @@ export default function TreeNodeRenderer({
             isHovered={hoveredNode === node.data} 
             setHoveredNode={setHoveredNode}
             onPopOutClicked={onPopOutClicked}
+            isSelected={isSelected}
           />
         )}
       </foreignObject>
@@ -113,10 +119,10 @@ export default function TreeNodeRenderer({
   if (node.data instanceof RuleNodeData) {
     return (
       <foreignObject
-        x={node.x - node.data.width / 2}
+        x={node.x - renderedWidth / 2}
         y={node.y}
-        width={node.data.width}
-        height={node.data.height}
+        width={renderedWidth}
+        height={renderedHeight}
         style={{ overflow: 'visible' }}
       >
         {visualOnly ? (
@@ -136,6 +142,7 @@ export default function TreeNodeRenderer({
             onFocusNode={onFocusNode}
             isHovered={hoveredNode === node.data}
             setHoveredNode={setHoveredNode}
+            isSelected={isSelected}
           />
         )}
       </foreignObject>
