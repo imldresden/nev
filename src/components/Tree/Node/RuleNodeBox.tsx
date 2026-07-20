@@ -13,6 +13,9 @@ type NodeBoxProps = {
 export function RuleNodeBox({ node, onMouseEnter, onClick }: Readonly<NodeBoxProps>) {
   const ruleName = node.getName();
   const needsTooltip = StringFormatter.needsRuleTruncation(ruleName);
+  const formattedRuleName = StringFormatter.breakRuleName(
+    StringFormatter.formatRuleName(ruleName, true)
+  );
 
   const content = (
     <div
@@ -27,7 +30,7 @@ export function RuleNodeBox({ node, onMouseEnter, onClick }: Readonly<NodeBoxPro
         minHeight: 33,
       }}
     >
-      <ColoredLogicText text={StringFormatter.formatRuleName(ruleName, true)} />
+      <ColoredLogicText text={formattedRuleName} />
     </div>
   );
 

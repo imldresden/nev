@@ -90,7 +90,7 @@ export default function ColoredLogicText({
 }: Readonly<ColoredLogicTextProps>) {
   const mode = useContext(LogicColorizationContext)
   if (mode === LOGIC_COLORIZATION_MODES.none) {
-    return text
+    return <span style={{ whiteSpace: 'pre' }}>{text}</span>
   }
 
   if (standaloneTerm) {
