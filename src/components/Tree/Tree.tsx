@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from 'react'
+import { useMemo, useRef, useEffect, useState, type ReactNode } from 'react'
 import * as d3 from 'd3'
 import { RuleNodeData, TableNodeData, type TreeNodeData } from '../../data/TreeNodeData'
 import type { PositionedTableNodeData } from "../../data/TreeNodeData";
@@ -187,18 +187,25 @@ export default function Tree({
     d3.zoomIdentity.translate(initialOffsetX, initialOffsetY)
   );
 
+  const zoomBehavior = useMemo(() => d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.2, 3])
+    .filter((event) => event.type !== "dblclick" && !event.ctrlKey && !event.metaKey)
+    .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+      setTransform(event.transform)
+    }), []);
+
   useEffect(() => {
-  if (!svgRef.current) return;
-  const svg = d3.select(svgRef.current);
-  svg.call(
-    d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.2, 3])
-      .filter((event) => event.type !== "dblclick" && !event.ctrlKey && !event.metaKey)
-      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-        setTransform(event.transform)
-      })
-  );
-}, []);
+    if (!svgRef.current) return;
+    d3.select(svgRef.current).call(zoomBehavior);
+  }, [zoomBehavior]);
+
+  const navigateFromMinimap = (worldX: number, worldY: number) => {
+    if (!svgRef.current) return;
+    const nextTransform = d3.zoomIdentity
+      .translate(width / 2 - worldX * transform.k, height / 2 - worldY * transform.k)
+      .scale(transform.k);
+    d3.select(svgRef.current).call(zoomBehavior.transform, nextTransform);
+  };
 
   const pointerPosition = (event: React.PointerEvent<SVGSVGElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -277,8 +284,7 @@ useEffect(() => {
   d3.select(svgRef.current)
     .transition()
     .duration(500)
-    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
-    .call(d3.zoom().transform as any, newTransform); 
+    .call(zoomBehavior.transform, newTransform);
 
   setTransform(newTransform);
 
@@ -302,12 +308,55 @@ useEffect(() => {
   setTransform(initialTransform);
 
   d3.select(svgRef.current)
-    /* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
-    .call(d3.zoom().transform as any, initialTransform); 
+    .call(zoomBehavior.transform, initialTransform);
 
   setLastCenteredRootId(rootNode.data.id);
 
-}, [nodes, width, height, panToNodeId, lastCenteredRootId, setPanToNodeId]);
+}, [nodes, width, height, panToNodeId, lastCenteredRootId, setPanToNodeId, zoomBehavior]);
+
+  const renderTreeContent = (visualOnly = false) => (
+    <>
+      {links.map((link: FlextreeLink, i: number) => (
+        <CustomLink
+          key={`link-${i}`}
+          source={link.source}
+          target={link.target}
+        />
+      ))}
+
+      {nodes.map((node: PositionedTableNodeData, i: number) => (
+        <TreeNodeRenderer
+          key={`node-${i}`}
+          node={node}
+          mode={mode}
+          showNodeExecutionTimes={showNodeExecutionTimes}
+          executionTimeRange={executionTimeRange}
+          isSingleRuleTree={isSingleRuleTree}
+          codingButtonClicked={codingButtonClicked}
+          focusClicked={focusClicked}
+          onMouseLeftButton={onMouseLeftButton}
+          setFocusClicked={setFocusClicked}
+          onRemoveAboveButtonClick={onRemoveAboveButtonClick}
+          onRemoveBelowButtonClick={onRemoveBelowButtonClick}
+          onAddAboveButtonClick={onAddAboveButtonClick}
+          onAddBelowButtonClick={onAddBelowButtonClick}
+          giveFocusPreview={giveFocusPreview}
+          giveRemoveAbovePreview={giveRemoveAbovePreview}
+          giveRemoveBelowPreview={giveRemoveBelowPreview}
+          onCollapseButtonClick={onCollapseButtonClick}
+          onNodeClicked={onNodeClicked}
+          onFocusButtonClick={onFocusButtonClick}
+          onFocusNode={onFocusNode}
+          onRowClicked={onRowClicked}
+          hoveredNode={hoveredNode}
+          setHoveredNode={setHoveredNode}
+          onPopOutClicked={onPopOutClicked}
+          visualOnly={visualOnly}
+          isSelected={!visualOnly && selectedNodes.includes(node.data)}
+        />
+      ))}
+    </>
+  );
 
   return (
     <div style={{ position: 'relative', width: svgWidth, height: svgHeight }}>
@@ -335,46 +384,7 @@ useEffect(() => {
           </marker>
         </defs>
         <g transform={transform.toString()}>
-          {links
-            .map((link: FlextreeLink, i: number) => (
-              <CustomLink
-                key={i}
-                source={link.source}
-                target={link.target}
-              />
-            ))}
-
-          {nodes.map((node: PositionedTableNodeData, i: number) => (
-            <g key={i}>
-            <TreeNodeRenderer
-              node={node}
-              mode={mode}
-              showNodeExecutionTimes={showNodeExecutionTimes}
-              executionTimeRange={executionTimeRange}
-              isSingleRuleTree={isSingleRuleTree}
-              codingButtonClicked={codingButtonClicked}
-              focusClicked={focusClicked}
-              onMouseLeftButton={onMouseLeftButton}
-              setFocusClicked={setFocusClicked}
-              onRemoveAboveButtonClick={onRemoveAboveButtonClick}
-              onRemoveBelowButtonClick={onRemoveBelowButtonClick}
-              onAddAboveButtonClick={onAddAboveButtonClick}
-              onAddBelowButtonClick={onAddBelowButtonClick}
-              giveFocusPreview={giveFocusPreview}
-              giveRemoveAbovePreview={giveRemoveAbovePreview}
-              giveRemoveBelowPreview={giveRemoveBelowPreview}
-              onCollapseButtonClick={onCollapseButtonClick}
-              onNodeClicked={onNodeClicked}
-              onFocusButtonClick={onFocusButtonClick}
-              onFocusNode={onFocusNode}
-              onRowClicked={onRowClicked}
-              hoveredNode={hoveredNode}
-              setHoveredNode={setHoveredNode}
-              onPopOutClicked={onPopOutClicked}
-              isSelected={selectedNodes.includes(node.data)}
-            />
-            </g>
-          ))}
+          {renderTreeContent()}
         </g>
         {selectionBox && (
           <rect
@@ -387,6 +397,88 @@ useEffect(() => {
           />
         )}
       </svg>
+      <TreeMinimap
+        nodes={nodes}
+        treeContent={renderTreeContent(true)}
+        transform={transform}
+        viewportWidth={width}
+        viewportHeight={height}
+        onNavigate={navigateFromMinimap}
+      />
     </div>
   )
+}
+
+type TreeMinimapProps = {
+  nodes: FlextreeNode<TableNodeData>[];
+  treeContent: ReactNode;
+  transform: d3.ZoomTransform;
+  viewportWidth: number;
+  viewportHeight: number;
+  onNavigate: (worldX: number, worldY: number) => void;
+};
+
+function TreeMinimap({ nodes, treeContent, transform, viewportWidth, viewportHeight, onNavigate }: Readonly<TreeMinimapProps>) {
+  const minimapWidth = 240;
+  const minimapHeight = 150;
+  const inset = 10;
+
+  if (nodes.length === 0) return null;
+
+  const minX = Math.min(...nodes.map(node => node.x - node.data.width / 2));
+  const maxX = Math.max(...nodes.map(node => node.x + node.data.width / 2));
+  const minY = Math.min(...nodes.map(node => node.y));
+  const maxY = Math.max(...nodes.map(node => node.y + node.data.height));
+  const contentWidth = Math.max(1, maxX - minX);
+  const contentHeight = Math.max(1, maxY - minY);
+  const scale = Math.min(
+    (minimapWidth - inset * 2) / contentWidth,
+    (minimapHeight - inset * 2) / contentHeight
+  );
+  const offsetX = (minimapWidth - contentWidth * scale) / 2 - minX * scale;
+  const offsetY = (minimapHeight - contentHeight * scale) / 2 - minY * scale;
+
+  const viewportX = (-transform.x / transform.k) * scale + offsetX;
+  const viewportY = (-transform.y / transform.k) * scale + offsetY;
+  const viewportRectWidth = viewportWidth / transform.k * scale;
+  const viewportRectHeight = viewportHeight / transform.k * scale;
+
+  const navigate = (event: React.PointerEvent<SVGSVGElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    onNavigate((x - offsetX) / scale, (y - offsetY) / scale);
+  };
+
+  return (
+    <div className="tree-minimap" aria-label="Trace minimap">
+      <svg
+        width={minimapWidth}
+        height={minimapHeight}
+        viewBox={`0 0 ${minimapWidth} ${minimapHeight}`}
+        role="img"
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          navigate(event);
+        }}
+        onPointerMove={(event) => {
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) navigate(event);
+        }}
+      >
+        <g
+          transform={`translate(${offsetX} ${offsetY}) scale(${scale})`}
+          className="tree-minimap__tree"
+        >
+          {treeContent}
+        </g>
+        <rect
+          x={viewportX}
+          y={viewportY}
+          width={viewportRectWidth}
+          height={viewportRectHeight}
+          className="tree-minimap__viewport"
+        />
+      </svg>
+    </div>
+  );
 }

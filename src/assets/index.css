@@ -7,6 +7,35 @@ html, body, #root {
   padding: 0;
 }
 
+.tree-minimap {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+  width: 240px;
+  height: 150px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #c8d0d8;
+  border-radius: 6px;
+  box-shadow: 0 2px 9px rgba(31, 45, 61, 0.2);
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
+}
+
+.tree-minimap__tree {
+  pointer-events: none;
+}
+
+.tree-minimap__viewport {
+  fill: rgba(76, 143, 90, 0.08);
+  stroke: #4c8f5a;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
 .page-breadcrumb-header {
   align-items: center;
   background: #fff;
