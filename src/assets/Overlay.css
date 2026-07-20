@@ -37,3 +37,22 @@
 .re-resizable .resizable-handle:hover {
   background: rgba(25, 118, 210, 0.5);
 }
+
+.indented-tree {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  font-size: 15px;
+  height: 100%;
+  line-height: 1.2;
+  min-height: 0;
+  width: 100%;
+}
+
+.indented-tree__rows {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  width: 100%;
+}

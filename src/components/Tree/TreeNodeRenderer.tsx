@@ -138,6 +138,7 @@ export default function TreeNodeRenderer({
             codingButtonClicked={codingButtonClicked}
             setFocusClicked={setFocusClicked}
             onCollapseButtonClick={onCollapseButtonClick}
+            onNodeClicked={onNodeClicked}
             onFocusButtonClick={onFocusButtonClick}
             onFocusNode={onFocusNode}
             isHovered={hoveredNode === node.data}

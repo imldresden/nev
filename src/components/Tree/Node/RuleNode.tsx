@@ -5,7 +5,6 @@ import { Tooltip } from '@mui/material'
 import { TbFocus2 } from 'react-icons/tb'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { greyedButtonStyle } from '../../../types/constants'
-import { type Timeouts } from '../../../types/types'
 
 type NodeProps = {
   node: RuleNodeData;
@@ -15,6 +14,7 @@ type NodeProps = {
   isSingleRuleTree: boolean;
   onFocusButtonClick: (node: RuleNodeData) => void;
   onFocusNode: (node: RuleNodeData, bool?: boolean) => void;
+  onNodeClicked: (node: TreeNodeData) => void;
   onCollapseButtonClick: (node: TreeNodeData, bool: boolean) => void;
   isHovered?: boolean;
   onMouseLeftButton: () => void;
@@ -34,6 +34,7 @@ export default function RuleNode({
   codingButtonClicked,
   giveFocusPreview,
   onCollapseButtonClick,
+  onNodeClicked,
   onFocusButtonClick,
   onFocusNode,
   isHovered,
@@ -41,17 +42,13 @@ export default function RuleNode({
   isSelected
 }: Readonly<NodeProps>) {
   const [hovered, setHovered] = useState(false);
-  const [hoverMap] = useState<Timeouts>({});
 
   return (
     <div
       className={`custom-node${isHovered ? ' hovered' : ''}${isSelected ? ' selected-for-export' : ''}`}
       onMouseLeave={() => {
-            const id = node.id.join('');
-            hoverMap[id] = setTimeout(() => {
-                setHovered(false); 
-                setHoveredNode(null)
-            }, 1500) 
+            setHovered(false); 
+            setHoveredNode(null)
         }}
         
       style={{
@@ -61,12 +58,13 @@ export default function RuleNode({
       <RuleNodeBox
         node={node}
         onMouseEnter={() => {
-            const id = node.id.join('');
-            clearTimeout(hoverMap[id]);
             setHovered(true); 
             setHoveredNode(node);
         }}
-        onClick={() => codingButtonClicked(node)}
+        onClick={() => {
+          onNodeClicked(node)
+          codingButtonClicked(node)
+        }}
       />
       {hovered && mode === "query" && !isSingleRuleTree && (
         <Tooltip title="Focus on this rule!" placement="right" enterDelay={500}>

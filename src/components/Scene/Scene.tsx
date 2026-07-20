@@ -17,6 +17,7 @@ import TextField from '@mui/material/TextField';
 import { ToggleButton, ToggleButtonGroup }  from "@mui/material";
 import ColoredLogicText from "../ColoredLogicText";
 import { LOGIC_COLORIZATION_MODES, LogicColorizationContext, type LogicColorizationMode } from "../logicColorization";
+import TreeBreadcrumb from "../Tree/TreeBreadcrumb";
 
 type SceneProps = {
   error: string | null;
@@ -28,6 +29,8 @@ type SceneProps = {
 // ...imports...
 
 function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps) {
+  const breadcrumbHeaderHeight = 42;
+
   // State for window dimensions
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -46,6 +49,12 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   // State for currently hovered node in the tree
   const [hoveredNode, setHoveredNode] = useState<TreeNodeData | null>(null);
 
+  // State for the node whose breadcrumb should remain visible after hover ends
+  const [breadcrumbNode, setBreadcrumbNode] = useState<TreeNodeData | null>(null);
+
+  // State for highlighting tree nodes when hovering breadcrumb items
+  const [breadcrumbHoveredNode, setBreadcrumbHoveredNode] = useState<TreeNodeData | null>(null);
+
   // State / Node for maximized table dialog
   const [maximizedTable, setMaximizedTable] = useState<TableNodeData | null>(null);
 
@@ -57,6 +66,9 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // State for search value
   const [searchValue, setSearchValue] = useState("");
+
+  // Whether breadcrumb labels should be displayed without truncation
+  const [showFullBreadcrumbLabels, setShowFullBreadcrumbLabels] = useState(false);
 
   // State for focused node in the tree
   const [focusClicked, setFocusClicked] = useState<TreeNodeData | null>(null);
@@ -92,6 +104,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const [editQueryOpen, setEditQueryOpen] = useState(false);
   const [maxLength, setMaxLength] = useState(StringFormatter.maxLengthSlider);
   const [showNodeExecutionTimes, setShowNodeExecutionTimes] = useState(false);
+  const [breakPremiseNodes, setBreakPremiseNodes] = useState(StringFormatter.breakPremiseNodes);
   const [colorizationMode, setColorizationMode] = useState<LogicColorizationMode>(LOGIC_COLORIZATION_MODES.text);
   const [selectedNodes, setSelectedNodes] = useState<TreeNodeData[]>([]);
 
@@ -103,6 +116,13 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
   const handleMaxLengthChange = (value: number) => {
     setMaxLength(value);
     StringFormatter.maxLength = value;
+    rootNode.update();
+    setTreeVersion(v => v + 1);
+  };
+
+  const handlePremiseBreaklinesChange = (checked: boolean) => {
+    StringFormatter.breakPremiseNodes = checked;
+    setBreakPremiseNodes(checked);
     rootNode.update();
     setTreeVersion(v => v + 1);
   };
@@ -307,6 +327,16 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     setPanToNodeId({ node: leaf, center: true });
   };
 
+  const handleBreadcrumbNodeClick = (node: TreeNodeData) => {
+    setBreadcrumbNode(node);
+    setPanToNodeId({ node, center: true });
+
+    if (mode === "explore") {
+      setFocusClicked(node);
+      handleFocusNode(node, false);
+    }
+  };
+
   const handleExport = () => {
     const selectedAddresses = new Set(selectedNodes.map(node => node.id.join("/")));
     const allTableNodes: TableNodeData[] = [];
@@ -358,6 +388,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
 
   // Handle clicking a node in the tree (isExpanded)
   const handleNodeClick = (node: TreeNodeData) => {
+    setBreadcrumbNode(node);
     dataManager.changeNodeLayout(node, node.isExpanded);
     setTreeVersion(v => v + 1);
   };
@@ -486,11 +517,14 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
     setTreeVersion(v => v + 1);
   }
 
+  const currentBreadcrumbNode = hoveredNode ?? breadcrumbNode;
+  const highlightedNode = breadcrumbHoveredNode ?? currentBreadcrumbNode;
+
   return (
     <LogicColorizationContext.Provider value={colorizationMode}>
     <div style={{ position: "relative" }}>
       {/* Top right action buttons */}
-      <div style={{ position: "absolute", top: 16, right: 16, zIndex: 1, display: "flex", flexDirection: "column", gap: 8, backgroundColor: "white", padding: 16, borderRadius: 8, boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}>
+      <div style={{ position: "absolute", top: breadcrumbHeaderHeight + 16, right: 16, zIndex: 1, display: "flex", flexDirection: "column", gap: 8, backgroundColor: "white", padding: 16, borderRadius: 8, boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)" }}>
         <div style={{textAlign:"center"}}>
         <ToggleButtonGroup
           size="small"
@@ -631,6 +665,25 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         </Tooltip>
 
         <Tooltip
+          title="Show complete labels in the breadcrumb; long paths can be scrolled horizontally."
+          placement="left"
+          enterDelay={500}
+        >
+          <FormControlLabel
+            sx={{ margin: 0, justifyContent: "space-between", fontSize: 14 }}
+            label="Full breadcrumb labels"
+            labelPlacement="start"
+            control={
+              <Switch
+                size="small"
+                checked={showFullBreadcrumbLabels}
+                onChange={(_, checked) => setShowFullBreadcrumbLabels(checked)}
+              />
+            }
+          />
+        </Tooltip>
+
+        <Tooltip
           title="Show or hide the bottom color strip that compares each node's reasoning time."
           placement="left"
           enterDelay={2000}
@@ -651,6 +704,26 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
             />
           </span>
         </Tooltip>
+
+        <Tooltip
+          title="Break long premise predicates across multiple lines."
+          placement="left"
+          enterDelay={500}
+        >
+          <FormControlLabel
+            sx={{ margin: 0, justifyContent: "space-between", fontSize: 14 }}
+            label="Premise breaklines"
+            labelPlacement="start"
+            control={
+              <Switch
+                size="small"
+                checked={breakPremiseNodes}
+                onChange={(_, checked) => handlePremiseBreaklinesChange(checked)}
+              />
+            }
+          />
+        </Tooltip>
+
         <Tooltip
           title="Toggle logic variable text colors."
           placement="left"
@@ -779,48 +852,62 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
         />
       )}
 
+      <div className="page-breadcrumb-header">
+        <TreeBreadcrumb
+          rootNode={rootNode}
+          currentNode={currentBreadcrumbNode}
+          showFullLabels={showFullBreadcrumbLabels}
+          onNodeClick={handleBreadcrumbNodeClick}
+          onNodeHover={setBreadcrumbHoveredNode}
+        />
+      </div>
+
       {/* Main tree visualization */}
-      <Tree
-        data={rootNode}
-        mode={mode}
-        showNodeExecutionTimes={showNodeExecutionTimes}
-        giveRemoveAbovePreview={handleRemoveAbovePreview}
-        giveRemoveBelowPreview={handleRemoveEdgePreview}
-        panToNodeId={panToNodeId}
-        hoveredNode={hoveredNode}
-        setHoveredNode={setHoveredNode}
-        treeVersion={treeVersion}
-        width={dimensions.width}
-        height={dimensions.height}
-        codingButtonClicked={codingButtonClicked}
-        onRemoveAboveButtonClick={handleRemoveAboveButtonClick}
-        onRemoveBelowButtonClick={handleRemoveBelowButtonClick}
-        onAddAboveButtonClick={handleAddRuleAboveButtonClick}
-        onAddBelowButtonClick={handleAddRuleBelowButtonClick}
-        onCollapseButtonClick={handleCollapseButtonClick}
-        onMouseLeftButton={() => handleResetEffect("isGreyed")}
-        giveFocusPreview={handleFocusPreview}
-        handleRemoveEdgePreview={handleRemoveEdgePreview}
-        onNodeClicked={handleNodeClick}
-        onFocusButtonClick={handleRuleFocusButtonClick}
-        onFocusNode={handleFocusNode}
-        onRowClicked={handleFocusOnRow}
-        onPopOutClicked={handleShowTable}
-        setPanToNodeId={setPanToNodeId}
-        setFocusClicked={setFocusClicked}
-        focusClicked={focusClicked}
-        selectedNodes={selectedNodes}
-        onSelectionChange={setSelectedNodes}
-      />
+      <div style={{ paddingTop: breadcrumbHeaderHeight }}>
+        <Tree
+          data={rootNode}
+          mode={mode}
+          showNodeExecutionTimes={showNodeExecutionTimes}
+          giveRemoveAbovePreview={handleRemoveAbovePreview}
+          giveRemoveBelowPreview={handleRemoveEdgePreview}
+          panToNodeId={panToNodeId}
+          hoveredNode={highlightedNode}
+          setHoveredNode={setHoveredNode}
+          treeVersion={treeVersion}
+          width={dimensions.width}
+          height={Math.max(0, dimensions.height - breadcrumbHeaderHeight)}
+          codingButtonClicked={codingButtonClicked}
+          onRemoveAboveButtonClick={handleRemoveAboveButtonClick}
+          onRemoveBelowButtonClick={handleRemoveBelowButtonClick}
+          onAddAboveButtonClick={handleAddRuleAboveButtonClick}
+          onAddBelowButtonClick={handleAddRuleBelowButtonClick}
+          onCollapseButtonClick={handleCollapseButtonClick}
+          onMouseLeftButton={() => handleResetEffect("isGreyed")}
+          giveFocusPreview={handleFocusPreview}
+          handleRemoveEdgePreview={handleRemoveEdgePreview}
+          onNodeClicked={handleNodeClick}
+          onFocusButtonClick={handleRuleFocusButtonClick}
+          onFocusNode={handleFocusNode}
+          onRowClicked={handleFocusOnRow}
+          onPopOutClicked={handleShowTable}
+          setPanToNodeId={setPanToNodeId}
+          setFocusClicked={setFocusClicked}
+          focusClicked={focusClicked}
+          selectedNodes={selectedNodes}
+          onSelectionChange={setSelectedNodes}
+        />
+      </div>
 
       {/* Side panel with indented tree */}
       <SidePanel
         open={showSidePanel}
+        topOffset={breadcrumbHeaderHeight}
         onClose={() => setShowSidePanel(!showSidePanel)}
         rootNode={rootNode}
-        hoveredNode={hoveredNode}
+        hoveredNode={highlightedNode}
         setHoveredNode={setHoveredNode}
         onNodeClick={(node, bool) => {
+          setBreadcrumbNode(node);
           setPanToNodeId({ node: node, center: true });
 
           if (mode === "explore") {

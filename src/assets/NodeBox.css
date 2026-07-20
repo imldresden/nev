@@ -57,10 +57,14 @@
 
 .table-node-box__header {
   flex-direction: column;
+  box-sizing: border-box;
+  padding: 4px 8px;
 }
 
 .table-node-box__name {
-  white-space: nowrap;
+  white-space: pre;
+  line-height: 19px;
+  text-align: left;
 }
 
 .table-node-box__execution-time-stripe {

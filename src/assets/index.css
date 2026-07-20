@@ -35,3 +35,95 @@ html, body, #root {
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
+
+.page-breadcrumb-header {
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #dfe4ea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  height: 42px;
+  left: 0;
+  padding: 0 12px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 5;
+}
+
+.tree-breadcrumb {
+  align-items: center;
+  box-sizing: border-box;
+  color: #444;
+  display: flex;
+  font-size: 15px;
+  height: 100%;
+  line-height: 1.2;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  user-select: none;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.tree-breadcrumb__item {
+  display: inline-flex;
+  flex: 0 0 auto;
+  transition: opacity 0.12s ease;
+}
+
+.tree-breadcrumb__item--dimmed {
+  opacity: 0.32;
+}
+
+.tree-breadcrumb__button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  margin: 0;
+  max-width: 28ch;
+  overflow: hidden;
+  padding: 2px 0;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-breadcrumb__button--full {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.tree-breadcrumb__button:hover,
+.tree-breadcrumb__button:focus-visible {
+  text-decoration: underline;
+}
+
+.tree-breadcrumb__button:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid #217dbb;
+  outline-offset: 2px;
+}
+
+.tree-breadcrumb__item--predicate {
+  color: #43a047;
+}
+
+.tree-breadcrumb__item--rule {
+  color: #217dbb;
+}
+
+.tree-breadcrumb__separator {
+  align-items: center;
+  color: #999;
+  display: inline-flex;
+  font-size: 0.7em;
+  padding: 0 8px;
+}

@@ -39,9 +39,9 @@ function TableNodeHeader({
 }) {
   const name = node.getName();
   const needsTooltip = StringFormatter.needsTruncation(name);
-  const formattedName = node.isSingleEntryTable() ? 
+  const formattedName = StringFormatter.breakPredicateName(node.isSingleEntryTable() ?
     StringFormatter.formatPredicate(name, true, node.getTableEntries()[0].termTuple) : 
-    StringFormatter.formatPredicate(name, true, node.parameterPredicate);
+    StringFormatter.formatPredicate(name, true, node.parameterPredicate));
   const unshortenedFormattedName = node.isSingleEntryTable() ? 
     StringFormatter.formatPredicate(name, false, node.getTableEntries()[0].termTuple) : 
     StringFormatter.formatPredicate(name, false, node.parameterPredicate);
@@ -55,12 +55,12 @@ function TableNodeHeader({
       >
         {needsTooltip ? (
           <Tooltip title={unshortenedFormattedName} placement="top" enterDelay={800}>
-            <span className="table-node-box__name" style={{ whiteSpace: "nowrap" }}>
+            <span className="table-node-box__name">
               &nbsp;<ColoredLogicText text={formattedName} />&nbsp;
             </span>
           </Tooltip>
         ) : (
-          <span className="table-node-box__name" style={{ whiteSpace: "nowrap" }}>
+          <span className="table-node-box__name">
             &nbsp;<ColoredLogicText text={formattedName} />&nbsp;
           </span>
         )}
@@ -110,7 +110,11 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
     const handler = (e: WheelEvent) => {
       e.stopPropagation();
       e.preventDefault();
-      div.scrollTop += e.deltaY;
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        div.scrollLeft += e.shiftKey ? e.deltaY : e.deltaX;
+      } else {
+        div.scrollTop += e.deltaY;
+      }
       return false;
     };
     div.addEventListener("wheel", handler, { passive: false });
@@ -149,19 +153,23 @@ function TableNodeDetails({ node, mode, onRowClicked, onPopOutClicked }: Readonl
               ref={scrollDivRef}
               style={{
                 flex: 1,
+                minWidth: 0,
                 minHeight: 120,
                 maxHeight: 120,
-                overflowY: "auto",
+                overflow: "auto",
               }}
             >
-              <table style={{ fontSize: "0.92em" }}>
+              <table style={{ fontSize: "0.92em", width: "max-content", minWidth: "100%" }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: "center" }}>#</th>
                     {columns.map((col, colIdx) => (
                       <th
                         key={colIdx}
-                        style={col.field === "action" ? { width: 40, minWidth: 40, maxWidth: 40, textAlign: "center" } : undefined}
+                        style={col.field === "action"
+                          ? { width: 40, minWidth: 40, maxWidth: 40, textAlign: "center" }
+                          : { minWidth: col.width }
+                        }
                       >
                         {col.headerName}
                       </th>
