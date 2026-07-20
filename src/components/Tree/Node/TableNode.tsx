@@ -62,7 +62,6 @@ export default function TableNode({
 }: Readonly<NodeProps>) {
     const [hovered, setHovered] = useState(false)
     const [activeDialog, setActiveDialog] = useState<"above" | "below" | "pos" | null>(null)    
-    const [hoverMap] = useState<Timeouts>({});
 
     const handleRuleAboveSelect = (rule: Rule, index: number) => {
         setActiveDialog(null)
@@ -77,16 +76,11 @@ export default function TableNode({
         <div
             className={`custom-node${hovered ? ' hovered' : ''}${isSelected ? ' selected-for-export' : ''}`}
             onMouseLeave={() => {
-                const id = node.id.join('');
-                hoverMap[id] = setTimeout(() => {
-                    setHovered(false);
-                    setHoveredNode(null);
-                }, 1500) 
+                setHovered(false);
+                setHoveredNode(null);
             }}
 
             onMouseEnter={() => {
-                const id = node.id.join('');
-                clearTimeout(hoverMap[id]);
                 setHovered(true); 
                 setHoveredNode(node);
             }}

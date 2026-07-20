@@ -1,8 +1,8 @@
 import { Tooltip } from '@mui/material'
 import { useState } from 'react'
 import { TableNodeData, type TreeNodeData } from '../../data/TreeNodeData'
-import StringFormatter from '../../util/StringFormatter'
 import ColoredLogicText from '../ColoredLogicText'
+import { formatNodeLabel } from './treeNodeLabel'
 
 type FlatRow = {
   node: TreeNodeData
@@ -48,19 +48,21 @@ export default function IndentedTree({ node, onNodeClick, hoveredNode, setHovere
   const rowNumberWidth = `${String(rows.length).length + 1}ch`
 
   return (
-    <div style={{ fontSize: 15, lineHeight: 1.2, width: "max-content", minWidth: "100%", boxSizing: "border-box" }}>
-      {rows.map((row, idx) => (
-        <IndentedTreeRow
-          key={idx}
-          rowIndex={idx + 1}
-          rowNumberWidth={rowNumberWidth}
-          row={row}
-          onNodeClicked={onNodeClick}
-          hoveredNode={hoveredNode}
-          setHoveredNode={setHoveredNode}
-        />
-      ))}
-      <div style={{ height: 18, userSelect: "none" }} />
+    <div className="indented-tree">
+      <div className="indented-tree__rows">
+        {rows.map((row, idx) => (
+          <IndentedTreeRow
+            key={idx}
+            rowIndex={idx + 1}
+            rowNumberWidth={rowNumberWidth}
+            row={row}
+            onNodeClicked={onNodeClick}
+            hoveredNode={hoveredNode}
+            setHoveredNode={setHoveredNode}
+          />
+        ))}
+        <div style={{ height: 18, userSelect: "none" }} />
+      </div>
     </div>
   )
 }
@@ -108,67 +110,57 @@ function IndentedTreeRow({
     background = 'inherit';
   }
 
-  const title = (row.node instanceof TableNodeData)
-    ? StringFormatter.formatPredicate(row.node.getName(), false, row.node.parameterPredicate)
-    : StringFormatter.formatRuleName(row.node.getName(), false)
+  const title = formatNodeLabel(row.node)
 
   return (
-    <div
-      onMouseEnter={() => {
-        setHoveredNode(row.node)
-        setTooltipOpen(true)
-      }}
-      onMouseLeave={() => {
-        setHoveredNode(null)
-        setTooltipOpen(false)
-      }}
-      style={{
-        cursor: 'pointer',
-        background,
-        color,
-        whiteSpace: 'nowrap',
-        width: 'max-content',
-        minWidth: '100%',
-      }}
-      onClick={e => {
-        if (e.ctrlKey) {onNodeClicked(row.node, true)}
-        onNodeClicked(row.node, false);
-      }}
+  <div
+    onMouseEnter={() => {
+      setHoveredNode(row.node)
+      setTooltipOpen(true)
+    }}
+    onMouseLeave={() => {
+      setHoveredNode(null)
+      setTooltipOpen(false)
+    }}
+    style={{
+      cursor: 'pointer',
+      background,
+      color,
+      whiteSpace: 'nowrap',
+      width: 'max-content',
+      minWidth: '100%',
+    }}
+    onClick={e => {
+      if (e.ctrlKey) {onNodeClicked(row.node, true)}
+      onNodeClicked(row.node, false);
+    }}
+  >
+    <Tooltip
+      title={title}
+      placement="right"
+      open={tooltipOpen}
+      enterDelay={500}
+      disableHoverListener
     >
-      <Tooltip
-        title={title}
-        placement="right"
-        open={tooltipOpen}
-        enterDelay={500}
-        disableHoverListener
+      <span style={{ position: 'sticky', right: 0, float: 'right', width: 1, height: '1.2em' }} />
+    </Tooltip>
+    <span style={{ display: 'inline-block' }}>
+      <span
+        style={{
+          color: '#999',
+          display: 'inline-block',
+          width: rowNumberWidth,
+          marginRight: '6px',
+          textAlign: 'right',
+          fontVariantNumeric: 'tabular-nums',
+        }}
       >
-        <span
-          style={{
-            position: 'sticky',
-            right: 0,
-            float: 'right',
-            width: 1,
-            height: '1.2em',
-          }}
-        />
-      </Tooltip>
-      <span style={{ display: 'inline-block' }}>
-        <span
-          style={{
-            color: '#999',
-            display: 'inline-block',
-            width: rowNumberWidth,
-            marginRight: '6px',
-            textAlign: 'right',
-            fontVariantNumeric: 'tabular-nums',
-          }}
-        >
-          {rowIndex}
-        </span>
-        {prefix}
-        {(caret ? caret : ' ') + ' '}
-        <ColoredLogicText text={title} />
+        {rowIndex}
       </span>
-    </div>
+      {prefix}
+      {(caret ? caret : ' ') + ' '}
+      <ColoredLogicText text={title} />
+    </span>
+  </div>
   );
 }

@@ -7,7 +7,7 @@ import ColoredLogicText from '../../ColoredLogicText'
 type NodeBoxProps = {
   node: RuleNodeData
   onMouseEnter?: () => void
-  onClick?:() => void
+  onClick?: () => void
 }
 
 export function RuleNodeBox({ node, onMouseEnter, onClick }: Readonly<NodeBoxProps>) {
