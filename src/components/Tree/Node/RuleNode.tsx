@@ -71,7 +71,7 @@ export default function RuleNode({
           <button
             type="button"
             className="custom-node-btn-corner-base custom-node-btn-corner"
-            style={{ top: -node.height, left: node.width - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
+            style={{ top: -10, left: node.width - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
             onClick={() => {onFocusButtonClick(node);codingButtonClicked(node)}}
             onMouseEnter={() => giveFocusPreview(node)}
             onMouseLeave={onMouseLeftButton}
@@ -87,7 +87,7 @@ export default function RuleNode({
             <button
               type="button"
               className="custom-node-btn-corner-base custom-node-btn-corner-explore"
-              style={{ top: -node.height, left: node.width - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
+              style={{ top: -10, left: node.width - 10, ...(greyedButtonStyle(node) as React.CSSProperties) }}
               onClick={() => {
                 if (focusClicked === node) {
                   setFocusClicked(null)

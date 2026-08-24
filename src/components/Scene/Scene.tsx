@@ -743,7 +743,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
           />
         </Tooltip>
 
-        <Tooltip
+        {/* <Tooltip
           title="Use Nemo-style code colors for rules, parameters, and constants."
           placement="left"
           enterDelay={500}
@@ -760,7 +760,7 @@ function Scene({ error, message, sendMessage, codingButtonClicked }: SceneProps)
               />
             }
           />
-        </Tooltip>
+        </Tooltip> */}
 
         <Box sx={{ display: "flex", gap: 1.5, marginTop: 2 }}>
           <Tooltip title="Jump to the root node of the tree!" placement="left" enterDelay={500}>
